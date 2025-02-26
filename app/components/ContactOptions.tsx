@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card"
 import { Language, translate } from '../utils/translations'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { CarFront } from 'lucide-react'
 
 interface ContactOptionsProps {
   language: Language
@@ -20,7 +21,7 @@ const ContactOptions: React.FC<ContactOptionsProps> = ({ language }) => {
     } else if (key === 'phone') {
       window.location.href = 'tel:+8210-1234-5678'
     } else if (key === 'innocard') {
-      router.push('/inquiry')
+      window.open('https://www.kia.com/kr/vehicles/catalog-price', '_blank')
     }
   }
 
@@ -64,14 +65,9 @@ const ContactOptions: React.FC<ContactOptionsProps> = ({ language }) => {
     },
     {
       key: 'innocard',
-      title: translate('innoCardInquiry', language),
+      title: translate('catalog', language),
       icon: (
-        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M10 54L14 42L50 6L58 14L22 50L10 54Z" stroke="#3B82F6" strokeWidth="2" fill="none"/>
-          <path d="M42 14L50 22" stroke="#3B82F6" strokeWidth="2"/>
-          <path d="M10 54L14 42" stroke="#3B82F6" strokeWidth="2"/>
-          <path d="M8 58H56" stroke="#3B82F6" strokeWidth="2"/>
-        </svg>
+        <CarFront className="w-16 h-16 text-blue-500" strokeWidth={1.2} />
       ),
     }
   ]

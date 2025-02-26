@@ -65,9 +65,9 @@ export default function ShareButton({ language }: ShareButtonProps) {
     }
   }
 
-  // 기아 카탈로그 페이지로 이동
-  const goToKiaCatalog = () => {
-    window.open('https://www.kia.com/kr/vehicles/catalog-price', '_blank')
+  // 문의 페이지로 이동
+  const goToInquiry = () => {
+    window.location.href = '/inquiry'
     setShowMenu(false)
   }
 
@@ -95,7 +95,7 @@ export default function ShareButton({ language }: ShareButtonProps) {
           className="fixed bottom-24 right-8 z-50 bg-white dark:bg-gray-800 rounded-xl shadow-xl overflow-hidden min-w-[220px] animate-fade-in border border-gray-200 dark:border-gray-700"
         >
           <div className="px-4 py-2.5 bg-gradient-to-r from-blue-600/20 to-cyan-500/20 dark:from-blue-500/20 dark:to-cyan-400/20 border-b border-gray-200 dark:border-gray-700">
-            <span className="text-sm font-medium text-gray-800 dark:text-gray-300">공유 및 바로가기</span>
+            <span className="text-sm font-medium text-gray-800 dark:text-gray-300">{translate('share', language)}</span>
           </div>
           
           {canNativeShare && (
@@ -119,14 +119,14 @@ export default function ShareButton({ language }: ShareButtonProps) {
               링크 복사
             </span>
           </button>
-          
+
           <button 
-            onClick={goToKiaCatalog}
+            onClick={goToInquiry}
             className="flex items-center gap-3 w-full px-4 py-3.5 text-left hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors border-t border-gray-200 dark:border-gray-700"
           >
             <ExternalLink className="w-5 h-5 text-blue-600 dark:text-blue-500" />
             <span className="text-gray-800 dark:text-gray-200">
-              기아 카탈로그/가격표 바로가기
+              문의하기
             </span>
           </button>
         </div>

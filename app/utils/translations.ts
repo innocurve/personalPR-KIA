@@ -220,11 +220,11 @@ export const translations: TranslationDictionary = {
     ja: '挨拶動画',
     zh: '问候视频',
   },
-  innoCardInquiry: {
-    ko: 'InnoCard\n문의',
-    en: 'InnoCard\nInquiry',
-    ja: 'InnoCard\nお問い合わせ',
-    zh: 'InnoCard\n咨询',
+  catalog: {
+    ko: '카탈로그\n바로가기',
+    en: 'Catalog\nShortcut',
+    ja: 'カタログ\nバックショートカット',
+    zh: '目录\n快捷方式',
   },
   contactOptions: {
     ko: '연락하기',
@@ -255,6 +255,12 @@ export const translations: TranslationDictionary = {
     en: "'s Clone",
     ja: "'s Clone",
     zh: "'s Clone"
+  },
+  inquiry: {
+    ko: '문의',
+    en: 'Inquiry',
+    ja: 'お問い合わせ',
+    zh: '咨询',
   },
   formName: {
     ko: '이름',
@@ -399,6 +405,12 @@ export const translations: TranslationDictionary = {
     en: 'Back to Chat',
     ja: 'チャットに戻る',
     zh: '返回聊天',
+  },
+  share: {
+    ko: '공유 및 문의',
+    en: 'Share and Inquiry',
+    ja: '共有とお問い合わせ',
+    zh: '分享和咨询',
   },
 };
 

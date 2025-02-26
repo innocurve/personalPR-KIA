@@ -85,7 +85,7 @@ export default function InquiryPage() {
                 </Link>
               </div>
               <CardTitle className="text-2xl font-bold mt-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 dark:from-blue-400 dark:to-cyan-400">
-                {translate('innoCardInquiry', language)}
+                {translate('inquiry', language)}
               </CardTitle>
             </CardHeader>
             <CardContent>
