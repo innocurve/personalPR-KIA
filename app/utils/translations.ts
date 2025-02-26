@@ -221,10 +221,10 @@ export const translations: TranslationDictionary = {
     zh: '问候视频',
   },
   catalog: {
-    ko: '카탈로그\n바로가기',
-    en: 'Catalog\nShortcut',
-    ja: 'カタログ\nバックショートカット',
-    zh: '目录\n快捷方式',
+    ko: '카탈로그',
+    en: 'Catalog',
+    ja: 'カタログ',
+    zh: '目录',
   },
   contactOptions: {
     ko: '연락하기',
