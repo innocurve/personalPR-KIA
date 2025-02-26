@@ -2,14 +2,14 @@
 <svg width="1920" height="1080" viewBox="0 0 1920 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="nodeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:0.9"/>
-      <stop offset="50%" style="stop-color:#2563EB;stop-opacity:0.9"/>
-      <stop offset="100%" style="stop-color:#0EA5E9;stop-opacity:0.9"/>
+      <stop offset="0%" style="stop-color:#EA0029;stop-opacity:0.9"/>
+      <stop offset="50%" style="stop-color:#D10024;stop-opacity:0.9"/>
+      <stop offset="100%" style="stop-color:#B8001F;stop-opacity:0.9"/>
     </linearGradient>
     <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:0.15"/>
-      <stop offset="50%" style="stop-color:#2563EB;stop-opacity:0.15"/>
-      <stop offset="100%" style="stop-color:#0EA5E9;stop-opacity:0.15"/>
+      <stop offset="0%" style="stop-color:#EA0029;stop-opacity:0.15"/>
+      <stop offset="50%" style="stop-color:#D10024;stop-opacity:0.15"/>
+      <stop offset="100%" style="stop-color:#B8001F;stop-opacity:0.15"/>
     </linearGradient>
     <filter id="glow">
       <feGaussianBlur stdDeviation="2" result="coloredBlur"/>

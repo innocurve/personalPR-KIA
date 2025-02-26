@@ -82,7 +82,7 @@ export default function ShareButton({ language }: ShareButtonProps) {
       <button
         ref={buttonRef}
         onClick={handleShareClick}
-        className="fixed bottom-8 right-8 z-50 bg-gradient-to-r from-blue-600 to-cyan-500 dark:from-blue-500 dark:to-cyan-400 text-white p-3.5 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 flex items-center justify-center"
+        className="fixed bottom-8 right-8 z-50 bg-gray-900 text-white p-3.5 rounded-full shadow-lg hover:bg-[#EA0029] shadow-xl transition-all duration-100 hover:scale-110 flex items-center justify-center"
         aria-label="Share Options"
       >
         <MoreVertical className="w-5 h-5" />
@@ -92,19 +92,15 @@ export default function ShareButton({ language }: ShareButtonProps) {
       {showMenu && (
         <div 
           ref={menuRef}
-          className="fixed bottom-24 right-8 z-50 bg-white dark:bg-gray-800 rounded-xl shadow-xl overflow-hidden min-w-[220px] animate-fade-in border border-gray-200 dark:border-gray-700"
+          className="fixed bottom-24 right-8 z-50 bg-white rounded-xl shadow-xl overflow-hidden min-w-[220px] animate-fade-in border border-gray-200"
         >
-          <div className="px-4 py-2.5 bg-gradient-to-r from-blue-600/20 to-cyan-500/20 dark:from-blue-500/20 dark:to-cyan-400/20 border-b border-gray-200 dark:border-gray-700">
-            <span className="text-sm font-medium text-gray-800 dark:text-gray-300">{translate('share', language)}</span>
-          </div>
-          
           {canNativeShare && (
             <button 
               onClick={nativeShare}
-              className="flex items-center gap-3 w-full px-4 py-3.5 text-left hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              className="flex items-center gap-3 w-full px-4 py-3.5 text-left hover:bg-gray-50 transition-colors duration-100 group"
             >
-              <Share className="w-5 h-5 text-blue-600 dark:text-blue-500" />
-              <span className="text-gray-800 dark:text-gray-200">
+              <Share className="w-5 h-5 text-gray-900 group-hover:text-[#EA0029] transition-colors duration-100" />
+              <span className="text-gray-900 group-hover:text-[#EA0029] transition-colors duration-100">
                 공유하기
               </span>
             </button>
@@ -112,20 +108,20 @@ export default function ShareButton({ language }: ShareButtonProps) {
           
           <button 
             onClick={copyLink}
-            className={`flex items-center gap-3 w-full px-4 py-3.5 text-left hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${canNativeShare ? 'border-t border-gray-200 dark:border-gray-700' : ''}`}
+            className={`flex items-center gap-3 w-full px-4 py-3.5 text-left hover:bg-gray-50 transition-colors duration-100 group ${canNativeShare ? 'border-t border-gray-200' : ''}`}
           >
-            <Link2 className="w-5 h-5 text-blue-600 dark:text-blue-500" />
-            <span className="text-gray-800 dark:text-gray-200">
+            <Link2 className="w-5 h-5 text-gray-900 group-hover:text-[#EA0029] transition-colors duration-100" />
+            <span className="text-gray-900 group-hover:text-[#EA0029] transition-colors duration-100">
               링크 복사
             </span>
           </button>
 
           <button 
             onClick={goToInquiry}
-            className="flex items-center gap-3 w-full px-4 py-3.5 text-left hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors border-t border-gray-200 dark:border-gray-700"
+            className="flex items-center gap-3 w-full px-4 py-3.5 text-left hover:bg-gray-50 transition-colors duration-100 group border-t border-gray-200"
           >
-            <ExternalLink className="w-5 h-5 text-blue-600 dark:text-blue-500" />
-            <span className="text-gray-800 dark:text-gray-200">
+            <ExternalLink className="w-5 h-5 text-gray-900 group-hover:text-[#EA0029] transition-colors duration-100" />
+            <span className="text-gray-900 group-hover:text-[#EA0029] transition-colors duration-100">
               문의하기
             </span>
           </button>
@@ -134,7 +130,7 @@ export default function ShareButton({ language }: ShareButtonProps) {
       
       {/* 토스트 메시지 */}
       {showToast && (
-        <div className="fixed bottom-24 right-8 z-50 bg-gradient-to-r from-blue-600 to-cyan-500 text-white px-4 py-2 rounded-lg shadow-lg animate-fade-in">
+        <div className="fixed bottom-24 right-8 z-50 bg-gray-900 text-white px-4 py-2 rounded-lg shadow-lg animate-fade-in">
           {translate('linkCopied', language)}
         </div>
       )}

@@ -57,7 +57,7 @@ const MyValues: React.FC<MyValuesProps> = ({ language }) => {
           </svg>
           <h2 className="text-lg sm:text-2xl md:text-3xl relative z-10 text-center mb-4 sm:mb-5 md:mb-6">
             {translate('valuesDescription', language).split('\n').map((line: string, i: number) => (
-              <span key={i} className="block text-lg sm:text-xl md:text-4xl font-mono tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-cyan-500 dark:from-blue-400 dark:to-cyan-400 whitespace-nowrap">
+              <span key={i} className="block text-lg sm:text-xl md:text-4xl font-mono tracking-tight text-[#05141F]">
                 {line}
               </span>
             ))}

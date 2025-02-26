@@ -9,6 +9,7 @@ import { Language } from '../../utils/translations'
 import Navigation from '@/app/components/Navigation'
 import { useLanguage } from '@/app/hooks/useLanguage'
 import { storage } from '@/app/utils/storage'
+import { translate } from '@/app/utils/translations'
 
 interface GalleryItem {
   id: number;
@@ -81,8 +82,8 @@ export default function GalleryPage() {
       <div className="max-w-3xl mx-auto p-5 pt-24">
         <Card className="dark:bg-gray-800 dark:border-gray-700">
           <CardHeader>
-            <CardTitle className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 dark:from-blue-400 dark:to-cyan-400">
-              {gallery.title[language]}
+            <CardTitle className="text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-gray-800 dark:from-gray-100 dark:to-gray-200">
+              {translate('galleryTitle', language)}
             </CardTitle>
           </CardHeader>
           <CardContent>

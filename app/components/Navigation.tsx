@@ -60,33 +60,22 @@ export default function Navigation({ language }: NavigationProps) {
           </div>
           <div className="flex items-center space-x-4">
             <nav className="hidden md:flex space-x-6">
-              <Link href="/#profile" className="font-mono tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 transition duration-300">
+              <Link href="/#profile" className="font-mono tracking-tight text-[#05141F] hover:text-gray-600 transition duration-100">
                 {translate('profile', language)}
               </Link>
-              <Link href="/#smart-options" className="font-mono tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 transition duration-300">
+              <Link href="/#smart-options" className="font-mono tracking-tight text-[#05141F] hover:text-gray-600 transition duration-100">
                 {translate('smartOptions', language)}
               </Link>
-              <Link href="/#history" className="font-mono tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 transition duration-300">
+              <Link href="/#history" className="font-mono tracking-tight text-[#05141F] hover:text-gray-600 transition duration-100">
                 {translate('history', language)}
               </Link>
-              <Link href="/#values" className="font-mono tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 transition duration-300">
+              <Link href="/#values" className="font-mono tracking-tight text-[#05141F] hover:text-gray-600 transition duration-100">
                 {translate('values', language)}
               </Link>
-              <Link href="/#community" className="font-mono tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 transition duration-300">
+              <Link href="/#community" className="font-mono tracking-tight text-[#05141F] hover:text-gray-600 transition duration-100">
                 {translate('activities', language)}
               </Link>
             </nav>
-            <button
-              onClick={toggleDarkMode}
-              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-              aria-label="Toggle dark mode"
-            >
-              {isDarkMode ? (
-                <Sun className="w-5 h-5 text-gray-600 dark:text-gray-300" />
-              ) : (
-                <Moon className="w-5 h-5 text-gray-600 dark:text-gray-300" />
-              )}
-            </button>
             <LanguageToggle />
             <button className="md:hidden" onClick={toggleMenu}>
               {isMenuOpen ? <X className="w-6 h-6 text-gray-600 dark:text-gray-300" /> : <Menu className="w-6 h-6 text-gray-600 dark:text-gray-300" />}
@@ -107,38 +96,38 @@ export default function Navigation({ language }: NavigationProps) {
             <div className="flex flex-col">
               <Link 
                 href="/#profile" 
-                className="block py-5 px-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 transition duration-300 font-mono tracking-tight border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 text-lg"
+                className="block py-5 px-6 text-[#05141F] hover:text-[#EA0029] transition duration-100 font-mono tracking-tight border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 text-lg"
                 onClick={toggleMenu}
               >
                 {translate('profile', language)}
               </Link>
               <Link 
                 href="/#smart-options" 
-                className="block py-5 px-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 transition duration-300 font-mono tracking-tight border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 text-lg"
+                className="block py-5 px-6 text-[#05141F] hover:text-[#EA0029] transition duration-100 font-mono tracking-tight border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 text-lg"
                 onClick={toggleMenu}
               >
                 {translate('smartOptions', language)}
               </Link>
               <Link 
                 href="/#history" 
-                className="block py-5 px-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 transition duration-300 font-mono tracking-tight border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 text-lg"
+                className="block py-5 px-6 text-[#05141F] hover:text-[#EA0029] transition duration-100 font-mono tracking-tight border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 text-lg"
                 onClick={toggleMenu}
               >
                 {translate('history', language)}
               </Link>
               <Link 
                 href="/#values" 
-                className="block py-5 px-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 transition duration-300 font-mono tracking-tight border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 text-lg"
+                className="block py-5 px-6 text-[#05141F] hover:text-[#EA0029] transition duration-100 font-mono tracking-tight border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 text-lg"
                 onClick={toggleMenu}
               >
                 {translate('values', language)}
               </Link>
               <Link 
                 href="/#community" 
-                className="block py-5 px-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 transition duration-300 font-mono tracking-tight hover:bg-gray-50 dark:hover:bg-gray-700 text-lg"
+                className="block py-5 px-6 text-[#05141F] hover:text-[#EA0029] transition duration-100 font-mono tracking-tight hover:bg-gray-50 dark:hover:bg-gray-700 text-lg"
                 onClick={toggleMenu}
               >
-                {translate('activities', language)}
+                {translate('community', language)}
               </Link>
             </div>
           </motion.nav>

@@ -84,7 +84,7 @@ export default function InquiryPage() {
                   <span>Back</span>
                 </Link>
               </div>
-              <CardTitle className="text-2xl font-bold mt-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 dark:from-blue-400 dark:to-cyan-400">
+              <CardTitle className="text-2xl font-bold mt-4 text-[#05141F]">
                 {translate('inquiry', language)}
               </CardTitle>
             </CardHeader>
@@ -169,10 +169,10 @@ export default function InquiryPage() {
           <div className="text-center space-y-4 mt-8 relative">
             <div className="flex items-center justify-center mb-8">
               <div className="w-16 h-[1px] bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-700 to-transparent"></div>
-              <h3 className="mx-4 text-sm xs:text-base sm:text-lg font-bold bg-gradient-to-r from-blue-600 to-cyan-500 dark:from-blue-400 dark:to-cyan-400 bg-clip-text text-transparent">
-                {translate('greetingTitle', language).split('\n').map((line, i) => (
-                  <span key={i} className="block whitespace-nowrap">{line}</span>
-                ))}
+              <h3 className="mx-4 text-sm xs:text-base sm:text-lg font-bold text-[#05141F]">
+              {translate('greetingTitle', language).split('\n').map((line, i) => (
+                        <span key={i} className="block whitespace-nowrap">{line}</span>
+                      ))}
               </h3>
               <div className="w-16 h-[1px] bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-700 to-transparent"></div>
             </div>

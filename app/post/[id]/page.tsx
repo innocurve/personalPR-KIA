@@ -57,15 +57,18 @@ export default function PostDetail() {
                 modules={[SwiperNavigation, Pagination, Autoplay]}
                 spaceBetween={0}
                 slidesPerView={1}
-                navigation
-                pagination={{ clickable: true }}
+                navigation={true}
+                pagination={{ 
+                  clickable: true,
+                  bulletActiveClass: 'swiper-pagination-bullet-active !bg-[#EA0029]'
+                }}
                 loop={post.images.length > 1}
                 autoplay={{
                   delay: 5000,
                   disableOnInteraction: false,
                   pauseOnMouseEnter: true
                 }}
-                className="w-full h-full"
+                className="w-full h-full [&_.swiper-button-next]:!text-[#EA0029] [&_.swiper-button-prev]:!text-[#EA0029]"
               >
                 <SwiperSlide>
                   <Image 
@@ -105,11 +108,11 @@ export default function PostDetail() {
             )}
           </div>
           <div className="p-4 sm:p-6 md:p-8">
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 dark:from-blue-400 dark:to-cyan-400">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6 text-[#05141F]">
               {post.title[language]}
             </h1>
             <div className="prose prose-sm sm:prose-base md:prose-lg max-w-none dark:prose-invert">
-              <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+              <p className="text-[#05141F] leading-relaxed">
                 {post.description[language]}
               </p>
             </div>
@@ -148,7 +151,7 @@ export default function PostDetail() {
             <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-gray-200 dark:border-gray-700">
               <Button
                 variant="ghost"
-                className="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white text-sm sm:text-base"
+                className="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-[#EA0029] dark:hover:text-[#EA0029] text-sm sm:text-base"
                 onClick={() => router.push('/#community')}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">

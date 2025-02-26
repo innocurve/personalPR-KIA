@@ -244,7 +244,7 @@ export default function ChatPage() {
                 priority
               />
             </div>
-            <span className="text-lg font-medium text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 dark:from-blue-400 dark:to-cyan-400">{translate('name', language)}{translate('cloneTitle', language)}</span>
+            <span className="text-lg font-medium tracking-tight text-[#05141F]">{translate('name', language)}{translate('cloneTitle', language)}</span>
           </div>
           <div className="flex items-center gap-2">
             <Link

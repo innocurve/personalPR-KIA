@@ -111,7 +111,7 @@ export default function Career() {
           >
             <h3 
               id={`year-${year}`}
-              className="text-2xl md:text-3xl font-bold text-blue-600 mb-3"
+              className="text-2xl md:text-3xl font-bold text-[#05141F] mb-3"
             >
               {year}
             </h3>

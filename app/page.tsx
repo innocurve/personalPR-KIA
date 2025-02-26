@@ -229,23 +229,12 @@ return (
           </div>
           <div className="flex items-center space-x-4">
             <nav className="hidden md:flex space-x-6">
-              <Link href="#profile" onClick={(e) => handleScrollTo(e, 'profile')} className="nav-link">{translate('profile', language)}</Link>
-              <Link href="#smart-options" onClick={(e) => handleScrollTo(e, 'smart-options')} className="nav-link">{translate('smartOptions', language)}</Link>
-              <Link href="#history" onClick={(e) => handleScrollTo(e, 'history')} className="nav-link">{translate('history', language)}</Link>
-              <Link href="#values" onClick={(e) => handleScrollTo(e, 'values')} className="nav-link">{translate('values', language)}</Link>
-              <Link href="#community" onClick={(e) => handleScrollTo(e, 'community')} className="nav-link">{translate('activities', language)}</Link>
+              <Link href="#profile" onClick={(e) => handleScrollTo(e, 'profile')} className="text-[#05141F] hover:text-[#EA0029] transition-colors">{translate('profile', language)}</Link>
+              <Link href="#smart-options" onClick={(e) => handleScrollTo(e, 'smart-options')} className="text-[#05141F] hover:text-[#EA0029] transition-colors">{translate('smartOptions', language)}</Link>
+              <Link href="#history" onClick={(e) => handleScrollTo(e, 'history')} className="text-[#05141F] hover:text-[#EA0029] transition-colors">{translate('history', language)}</Link>
+              <Link href="#values" onClick={(e) => handleScrollTo(e, 'values')} className="text-[#05141F] hover:text-[#EA0029] transition-colors">{translate('values', language)}</Link>
+              <Link href="#community" onClick={(e) => handleScrollTo(e, 'community')} className="text-[#05141F] hover:text-[#EA0029] transition-colors">{translate('activities', language)}</Link>
             </nav>
-            <button
-              onClick={toggleDarkMode}
-              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-              aria-label="Toggle dark mode"
-            >
-              {isDarkMode ? (
-                <Sun className="w-5 h-5 text-gray-600 dark:text-gray-300" />
-              ) : (
-                <Moon className="w-5 h-5 text-gray-600 dark:text-gray-300" />
-              )}
-            </button>
             <LanguageToggle />
             <button 
               className="md:hidden p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" 
@@ -271,11 +260,11 @@ return (
           transition={{ duration: 0.3 }}
         >
           <div className="flex flex-col">
-            <Link href="#profile" onClick={(e) => { setIsMenuOpen(false); handleScrollTo(e, 'profile'); }} className="block py-5 px-6 text-lg text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 transition duration-300 font-mono tracking-tight border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">{translate('profile', language)}</Link>
-            <Link href="#smart-options" onClick={(e) => { setIsMenuOpen(false); handleScrollTo(e, 'smart-options'); }} className="block py-5 px-6 text-lg text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 transition duration-300 font-mono tracking-tight border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">{translate('smartOptions', language)}</Link>
-            <Link href="#history" onClick={(e) => { setIsMenuOpen(false); handleScrollTo(e, 'history'); }} className="block py-5 px-6 text-lg text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 transition duration-300 font-mono tracking-tight border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">{translate('history', language)}</Link>
-            <Link href="#values" onClick={(e) => { setIsMenuOpen(false); handleScrollTo(e, 'values'); }} className="block py-5 px-6 text-lg text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 transition duration-300 font-mono tracking-tight border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">{translate('values', language)}</Link>
-            <Link href="#community" onClick={(e) => { setIsMenuOpen(false); handleScrollTo(e, 'community'); }} className="block py-5 px-6 text-lg text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 transition duration-300 font-mono tracking-tight hover:bg-gray-50 dark:hover:bg-gray-700">{translate('activities', language)}</Link>
+            <Link href="#profile" onClick={(e) => { setIsMenuOpen(false); handleScrollTo(e, 'profile'); }} className="block py-5 px-6 text-[#05141F] hover:text-[#EA0029] transition-colors font-mono tracking-tight border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">{translate('profile', language)}</Link>
+            <Link href="#smart-options" onClick={(e) => { setIsMenuOpen(false); handleScrollTo(e, 'smart-options'); }} className="block py-5 px-6 text-[#05141F] hover:text-[#EA0029] transition-colors font-mono tracking-tight border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">{translate('smartOptions', language)}</Link>
+            <Link href="#history" onClick={(e) => { setIsMenuOpen(false); handleScrollTo(e, 'history'); }} className="block py-5 px-6 text-[#05141F] hover:text-[#EA0029] transition-colors font-mono tracking-tight border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">{translate('history', language)}</Link>
+            <Link href="#values" onClick={(e) => { setIsMenuOpen(false); handleScrollTo(e, 'values'); }} className="block py-5 px-6 text-[#05141F] hover:text-[#EA0029] transition-colors font-mono tracking-tight border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">{translate('values', language)}</Link>
+            <Link href="#community" onClick={(e) => { setIsMenuOpen(false); handleScrollTo(e, 'community'); }} className="block py-5 px-6 text-[#05141F] hover:text-[#EA0029] transition-colors font-mono tracking-tight hover:bg-gray-50 dark:hover:bg-gray-700">{translate('activities', language)}</Link>
           </div>
         </motion.nav>
       )}
@@ -296,8 +285,8 @@ return (
                 />
               </div>
               <div className="text-center">
-                <h2 className="text-4xl sm:text-5xl font-bold mb-3 text-gray-900 dark:text-white">{translate('name', language)}</h2>
-                <p className="text-2xl sm:text-3xl text-gray-600 dark:text-gray-300 mb-6">
+                <h2 className="text-4xl sm:text-5xl font-bold mb-3 text-[#05141F]">{translate('name', language)}</h2>
+                <p className="text-2xl sm:text-3xl text-[#05141F] mb-6">
                   {translate('title', language).split('|').map((part, index) => (
                     <span key={index} className="sm:inline block">
                       {index > 0 && <span className="sm:inline hidden"> · </span>}
@@ -362,8 +351,11 @@ return (
                 modules={[Navigation, Pagination, Autoplay]}
                 spaceBetween={20}
                 slidesPerView={1}
-                navigation
-                pagination={{ clickable: true }}
+                navigation={true}
+                pagination={{ 
+                  clickable: true,
+                  bulletActiveClass: 'swiper-pagination-bullet-active !bg-[#ea0029]'
+                }}
                 loop={posts.length > 1}
                 autoplay={{
                   delay: 3000,
@@ -385,7 +377,7 @@ return (
                     spaceBetween: 20,
                   }
                 }}
-                className="swiper-container !pb-12"
+                className="swiper-container !pb-12 [&_.swiper-button-next]:!text-[#ea0029] [&_.swiper-button-prev]:!text-[#ea0029]"
               >
                 {posts.map((post) => (
                   <SwiperSlide 
@@ -426,7 +418,7 @@ return (
                         >{post.description[language]}</p>
                         <div className="flex flex-wrap gap-2 mt-auto">
                           {post.tags[language].map((tag, index) => (
-                            <span key={index} className="text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded-full">
+                            <span key={index} className="text-xs text-gray-900 dark:text-gray-100 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-full">
                               {tag}
                             </span>
                           ))}
@@ -470,7 +462,7 @@ return (
           <div>
             <h3 className="font-bold text-lg mb-4">{translate('socialMedia', language)}</h3>
             <div className="space-y-2">
-              <Link href="https://www.instagram.com/inno_curve/" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 hover:text-blue-400 transition duration-300">
+              <Link href="https://www.instagram.com/inno_curve/" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 hover:text-[#EA0029] transition duration-100">
                 <span>Instagram</span>
               </Link>
               <p className="text-white">Naver</p>
@@ -490,9 +482,9 @@ return (
 function ProfileItem({ label, value, className = '' }: { label: string, value: string[], className?: string }) {
   return (
     <div className={`mb-2 ${className}`}>
-      {label && <span className="font-bold text-blue-600 dark:text-blue-400 block mb-1 text-xl text-label">{label}</span>}
+      {label && <span className="font-bold text-[#05141F] block mb-1 text-xl text-label">{label}</span>}
       {(value ?? []).map((item, index) => (
-        <p key={index} className="text-lg text-gray-700 dark:text-gray-300 text-content">{item}</p>
+        <p key={index} className="text-lg text-[#05141F] text-content">{item}</p>
       ))}
     </div>
   )

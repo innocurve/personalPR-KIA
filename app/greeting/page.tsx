@@ -86,7 +86,7 @@ export default function GreetingVideo() {
                 <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
                 <span className="text-sm sm:text-base font-medium">Back</span>
               </Link>
-              <CardTitle className="inline-block w-max text-xl sm:text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 dark:from-blue-400 dark:to-cyan-400">
+              <CardTitle className="inline-block w-max text-xl sm:text-2xl md:text-3xl font-bold text-[#05141F]">
                 {translate('greetingVideo', language)}
               </CardTitle>
               <div className="invisible flex items-center gap-2">
@@ -134,8 +134,8 @@ export default function GreetingVideo() {
                 <div className="max-w-2xl mx-auto">
                   <div className="flex items-center justify-center mb-8">
                     <div className="w-16 h-[1px] bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-500 to-transparent"></div>
-                    <h3 className="mx-4 text-sm xs:text-base sm:text-lg font-bold bg-gradient-to-r from-blue-600 to-cyan-500 dark:from-blue-400 dark:to-cyan-400 bg-clip-text text-transparent">
-                      {translate('greetingTitle', language).split('\n').map((line, i) => (
+                    <h3 className="mx-4 text-sm xs:text-base sm:text-lg font-bold text-[#05141F]">
+                    {translate('greetingTitle', language).split('\n').map((line, i) => (
                         <span key={i} className="block whitespace-nowrap">{line}</span>
                       ))}
                     </h3>
