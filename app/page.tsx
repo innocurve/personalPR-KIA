@@ -190,291 +190,296 @@ const handleScrollTo = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
 };
 
 return (
-  <div className="font-sans min-h-screen flex flex-col bg-white dark:bg-gray-900">
-    <style jsx global>{`
-      html {
-        scroll-behavior: smooth;
-      }
-      .swiper-container {
-        width: 100%;
-        height: 100%;
-        padding: 20px 0;
-      }
-      .swiper-slide {
-        height: auto;
-        padding: 1px;
-      }
-      @media (max-width: 640px) {
-        .swiper-button-next,
-        .swiper-button-prev {
-          display: none;
-        }
-      }
-    `}</style>
-    <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 fixed top-0 left-0 right-0 z-50">
-      <div className="max-w-screen-xl mx-auto px-4">
-        <div className="flex items-center justify-between py-4">
-          <div className="flex items-center">
-            <Link href="/" className="flex items-center">
-              <Image 
-                src="/logo.png" 
-                alt="이노커브 로고" 
-                width={160} 
-                height={64} 
-                priority
-                className="object-contain cursor-pointer"
-                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              />
-            </Link>
+  <div className="min-h-screen bg-white">
+    {/* 기존 컨텐츠를 relative로 설정하여 배경 위에 표시 */}
+    <div className="relative z-10">
+      <div className="font-sans min-h-screen flex flex-col">
+        <style jsx global>{`
+          html {
+            scroll-behavior: smooth;
+          }
+          .swiper-container {
+            width: 100%;
+            height: 100%;
+            padding: 20px 0;
+          }
+          .swiper-slide {
+            height: auto;
+            padding: 1px;
+          }
+          @media (max-width: 640px) {
+            .swiper-button-next,
+            .swiper-button-prev {
+              display: none;
+            }
+          }
+        `}</style>
+        <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200 fixed top-0 left-0 right-0 z-50">
+          <div className="max-w-screen-xl mx-auto px-4">
+            <div className="flex items-center justify-between py-4">
+              <div className="flex items-center">
+                <Link href="/" className="flex items-center">
+                  <Image 
+                    src="/logo.png" 
+                    alt="이노커브 로고" 
+                    width={160} 
+                    height={64} 
+                    priority
+                    className="object-contain cursor-pointer"
+                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  />
+                </Link>
+              </div>
+              <div className="flex items-center space-x-4">
+                <nav className="hidden md:flex space-x-6">
+                  <Link href="#profile" onClick={(e) => handleScrollTo(e, 'profile')} className="text-[#05141F] hover:text-[#EA0029] transition-colors">{translate('profile', language)}</Link>
+                  <Link href="#smart-options" onClick={(e) => handleScrollTo(e, 'smart-options')} className="text-[#05141F] hover:text-[#EA0029] transition-colors">{translate('smartOptions', language)}</Link>
+                  <Link href="#history" onClick={(e) => handleScrollTo(e, 'history')} className="text-[#05141F] hover:text-[#EA0029] transition-colors">{translate('history', language)}</Link>
+                  <Link href="#values" onClick={(e) => handleScrollTo(e, 'values')} className="text-[#05141F] hover:text-[#EA0029] transition-colors">{translate('values', language)}</Link>
+                  <Link href="#community" onClick={(e) => handleScrollTo(e, 'community')} className="text-[#05141F] hover:text-[#EA0029] transition-colors">{translate('activities', language)}</Link>
+                </nav>
+                <LanguageToggle />
+                <button 
+                  className="md:hidden p-2 rounded-full hover:bg-gray-100 transition-colors" 
+                  onClick={() => setIsMenuOpen(!isMenuOpen)}
+                  aria-label="Toggle menu"
+                >
+                  {isMenuOpen ? 
+                    <X className="w-6 h-6 text-gray-600" /> : 
+                    <Menu className="w-6 h-6 text-gray-600" />
+                  }
+                </button>
+              </div>
+            </div>
           </div>
-          <div className="flex items-center space-x-4">
-            <nav className="hidden md:flex space-x-6">
-              <Link href="#profile" onClick={(e) => handleScrollTo(e, 'profile')} className="text-[#05141F] hover:text-[#EA0029] transition-colors">{translate('profile', language)}</Link>
-              <Link href="#smart-options" onClick={(e) => handleScrollTo(e, 'smart-options')} className="text-[#05141F] hover:text-[#EA0029] transition-colors">{translate('smartOptions', language)}</Link>
-              <Link href="#history" onClick={(e) => handleScrollTo(e, 'history')} className="text-[#05141F] hover:text-[#EA0029] transition-colors">{translate('history', language)}</Link>
-              <Link href="#values" onClick={(e) => handleScrollTo(e, 'values')} className="text-[#05141F] hover:text-[#EA0029] transition-colors">{translate('values', language)}</Link>
-              <Link href="#community" onClick={(e) => handleScrollTo(e, 'community')} className="text-[#05141F] hover:text-[#EA0029] transition-colors">{translate('activities', language)}</Link>
-            </nav>
-            <LanguageToggle />
-            <button 
-              className="md:hidden p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" 
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              aria-label="Toggle menu"
+        </header>
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.nav
+              className="md:hidden bg-white fixed top-[72px] left-0 right-0 z-40 shadow-lg border-b border-gray-200"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
             >
-              {isMenuOpen ? 
-                <X className="w-6 h-6 text-gray-600 dark:text-gray-300" /> : 
-                <Menu className="w-6 h-6 text-gray-600 dark:text-gray-300" />
-              }
-            </button>
-          </div>
-        </div>
-      </div>
-    </header>
-    <AnimatePresence>
-      {isMenuOpen && (
-        <motion.nav
-          className="md:hidden bg-white dark:bg-gray-800 fixed top-[72px] left-0 right-0 z-40 shadow-lg border-b border-gray-200 dark:border-gray-700"
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          transition={{ duration: 0.3 }}
-        >
-          <div className="flex flex-col">
-            <Link href="#profile" onClick={(e) => { setIsMenuOpen(false); handleScrollTo(e, 'profile'); }} className="block py-5 px-6 text-[#05141F] hover:text-[#EA0029] transition-colors font-mono tracking-tight border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">{translate('profile', language)}</Link>
-            <Link href="#smart-options" onClick={(e) => { setIsMenuOpen(false); handleScrollTo(e, 'smart-options'); }} className="block py-5 px-6 text-[#05141F] hover:text-[#EA0029] transition-colors font-mono tracking-tight border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">{translate('smartOptions', language)}</Link>
-            <Link href="#history" onClick={(e) => { setIsMenuOpen(false); handleScrollTo(e, 'history'); }} className="block py-5 px-6 text-[#05141F] hover:text-[#EA0029] transition-colors font-mono tracking-tight border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">{translate('history', language)}</Link>
-            <Link href="#values" onClick={(e) => { setIsMenuOpen(false); handleScrollTo(e, 'values'); }} className="block py-5 px-6 text-[#05141F] hover:text-[#EA0029] transition-colors font-mono tracking-tight border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">{translate('values', language)}</Link>
-            <Link href="#community" onClick={(e) => { setIsMenuOpen(false); handleScrollTo(e, 'community'); }} className="block py-5 px-6 text-[#05141F] hover:text-[#EA0029] transition-colors font-mono tracking-tight hover:bg-gray-50 dark:hover:bg-gray-700">{translate('activities', language)}</Link>
-          </div>
-        </motion.nav>
-      )}
-    </AnimatePresence>
-    <main className="w-full max-w-4xl mx-auto p-5 pt-24 flex-grow overflow-x-hidden">
-      <div className="w-full overflow-x-hidden">
-        <FadeInSection>
-          <section id="profile" className="mb-8 bg-white dark:bg-gray-800 rounded-xl p-6 sm:p-10 shadow-lg overflow-hidden relative">
-            <div className="flex flex-col items-center space-y-6">
-              <div className="w-40 h-40 sm:w-56 sm:h-56 relative">
-                <Image 
-                  src="/profile.png"
-                  alt={translate('name', language)} 
-                  fill
-                  sizes="(max-width: 640px) 160px, 224px"
-                  priority
-                  className="rounded-full object-cover object-top w-auto h-auto" 
-                />
+              <div className="flex flex-col">
+                <Link href="#profile" onClick={(e) => { setIsMenuOpen(false); handleScrollTo(e, 'profile'); }} className="block py-5 px-6 text-[#05141F] hover:text-[#EA0029] transition-colors font-mono tracking-tight border-b border-gray-100 hover:bg-gray-50">{translate('profile', language)}</Link>
+                <Link href="#smart-options" onClick={(e) => { setIsMenuOpen(false); handleScrollTo(e, 'smart-options'); }} className="block py-5 px-6 text-[#05141F] hover:text-[#EA0029] transition-colors font-mono tracking-tight border-b border-gray-100 hover:bg-gray-50">{translate('smartOptions', language)}</Link>
+                <Link href="#history" onClick={(e) => { setIsMenuOpen(false); handleScrollTo(e, 'history'); }} className="block py-5 px-6 text-[#05141F] hover:text-[#EA0029] transition-colors font-mono tracking-tight border-b border-gray-100 hover:bg-gray-50">{translate('history', language)}</Link>
+                <Link href="#values" onClick={(e) => { setIsMenuOpen(false); handleScrollTo(e, 'values'); }} className="block py-5 px-6 text-[#05141F] hover:text-[#EA0029] transition-colors font-mono tracking-tight border-b border-gray-100 hover:bg-gray-50">{translate('values', language)}</Link>
+                <Link href="#community" onClick={(e) => { setIsMenuOpen(false); handleScrollTo(e, 'community'); }} className="block py-5 px-6 text-[#05141F] hover:text-[#EA0029] transition-colors font-mono tracking-tight hover:bg-gray-50">{translate('activities', language)}</Link>
               </div>
-              <div className="text-center">
-                <h2 className="text-4xl sm:text-5xl font-bold mb-3 text-[#05141F]">{translate('name', language)}</h2>
-                <p className="text-2xl sm:text-3xl text-[#05141F] mb-6">
-                  {translate('title', language).split('|').map((part, index) => (
-                    <span key={index} className="sm:inline block">
-                      {index > 0 && <span className="sm:inline hidden"> · </span>}
-                      {part}
-                    </span>
-                  ))}
-                </p>
+            </motion.nav>
+          )}
+        </AnimatePresence>
+        <main className="w-full max-w-4xl mx-auto p-5 pt-24 flex-grow overflow-x-hidden">
+          <div className="w-full overflow-x-hidden">
+            <FadeInSection>
+              <section id="profile" className="mb-8 bg-white rounded-xl p-6 sm:p-10 shadow-lg overflow-hidden relative">
+                <div className="flex flex-col items-center space-y-6">
+                  <div className="w-40 h-40 sm:w-56 sm:h-56 relative">
+                    <Image 
+                      src="/profile.png"
+                      alt={translate('name', language)} 
+                      fill
+                      sizes="(max-width: 640px) 160px, 224px"
+                      priority
+                      className="rounded-full object-cover object-top w-auto h-auto" 
+                    />
+                  </div>
+                  <div className="text-center">
+                    <h2 className="text-4xl sm:text-5xl font-bold mb-3 text-[#05141F]">{translate('name', language)}</h2>
+                    <p className="text-2xl sm:text-3xl text-[#05141F] mb-6">
+                      {translate('title', language).split('|').map((part, index) => (
+                        <span key={index} className="sm:inline block">
+                          {index > 0 && <span className="sm:inline hidden"> · </span>}
+                          {part}
+                        </span>
+                      ))}
+                    </p>
+                  </div>
+                  <div className="w-full max-w-2xl mx-auto">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <ProfileItem label={translate('birth', language)} value={[translate('birthDate', language)]} className="text-center" />
+                      <ProfileItem label={translate('mbti', language)} value={[translate('mbtiType', language)]} className="text-center" />
+                      <ProfileItem 
+                        label={translate('affiliation', language)} 
+                        value={translate('affiliationDescription', language).split('\n')} 
+                        className="text-center"
+                      />
+                      <ProfileItem 
+                        label={translate('education', language)} 
+                        value={translate('educationDescription', language).split('\n')} 
+                        className="text-center"
+                      />
+                      <ProfileItem 
+                        label={translate('field', language)} 
+                        value={[translate('fieldDescription', language)]} 
+                        className="text-center"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </FadeInSection>
+          </div>
+
+          <div className="w-full overflow-x-hidden">
+            <FadeInSection>
+              <section id="smart-options" className="mb-8">
+                <ContactOptions language={language} />
+              </section>
+            </FadeInSection>
+          </div>
+
+          <div className="w-full overflow-x-hidden">
+            <FadeInSection>
+              <section id="history" className="mb-8 bg-white rounded-xl p-8 shadow-lg overflow-hidden relative">
+                <History />
+              </section>
+            </FadeInSection>
+          </div>
+          <div className="w-full overflow-x-hidden">
+            <FadeInSection>
+              <section id="values" className="mb-8 pt-8">
+                <MyValues language={language} />
+              </section>
+            </FadeInSection>
+          </div>
+          <div className="w-full overflow-x-hidden">
+            <FadeInSection>
+              <section id="community" className="py-16">
+                <div className="container mx-auto px-4">
+                  <Swiper
+                    modules={[Navigation, Pagination, Autoplay]}
+                    spaceBetween={20}
+                    slidesPerView={1}
+                    navigation={true}
+                    pagination={{ 
+                      clickable: true,
+                      bulletActiveClass: 'swiper-pagination-bullet-active !bg-[#ea0029]'
+                    }}
+                    loop={posts.length > 1}
+                    autoplay={{
+                      delay: 3000,
+                      disableOnInteraction: false,
+                      pauseOnMouseEnter: true,
+                      stopOnLastSlide: false
+                    }}
+                    breakpoints={{
+                      0: {
+                        slidesPerView: 1,
+                        spaceBetween: 10,
+                      },
+                      640: {
+                        slidesPerView: Math.min(2, posts.length),
+                        spaceBetween: 20,
+                      },
+                      1024: {
+                        slidesPerView: Math.min(3, posts.length),
+                        spaceBetween: 20,
+                      }
+                    }}
+                    className="swiper-container !pb-12 [&_.swiper-button-next]:!text-[#ea0029] [&_.swiper-button-prev]:!text-[#ea0029]"
+                  >
+                    {posts.map((post) => (
+                      <SwiperSlide 
+                        key={post.id}
+                        className="h-[340px]"
+                      >
+                        <div
+                          onClick={() => handlePostClick(post.id)}
+                          className="bg-white rounded-lg shadow-md dark:shadow-gray-900/30 cursor-pointer transform transition-all duration-300 hover:scale-105 h-[340px] flex flex-col border border-gray-100 dark:border-gray-700"
+                        >
+                          <div className="relative h-[200px] rounded-t-lg overflow-hidden bg-gray-50 dark:bg-gray-700 flex items-center justify-center">
+                            <Image
+                              src={post.image}
+                              alt={post.title[language]}
+                              fill
+                              className="object-cover"
+                              priority
+                            />
+                          </div>
+                          <div className="p-4 flex flex-col flex-1">
+                            <h3 className="text-lg font-semibold mb-2 overflow-hidden whitespace-pre-line text-gray-900"
+                                style={{
+                                  display: '-webkit-box',
+                                  WebkitBoxOrient: 'vertical',
+                                  WebkitLineClamp: '2',
+                                  minHeight: '3.5rem',
+                                  lineHeight: '1.5rem'
+                                }}
+                            >{post.title[language]}</h3>
+                            <p className="text-gray-600 text-sm mb-3 overflow-hidden"
+                               style={{
+                                 display: '-webkit-box',
+                                 WebkitBoxOrient: 'vertical',
+                                 WebkitLineClamp: '3',
+                                 minHeight: '3rem',
+                                 lineHeight: '1.25rem'
+                               }}
+                            >{post.description[language]}</p>
+                            <div className="flex flex-wrap gap-2 mt-auto">
+                              {post.tags[language].map((tag, index) => (
+                                <span key={index} className="text-xs text-gray-900 bg-gray-100 px-2 py-1 rounded-full">
+                                  {tag}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </SwiperSlide>
+                    ))}
+                  </Swiper>
+                </div>
+              </section>
+            </FadeInSection>
+          </div>
+        </main>
+
+        <ShareButton language={language} />
+
+        <footer className="bg-gray-800 text-white py-12 mt-12">
+          <div className="max-w-4xl mx-auto px-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div>
+                <h3 className="font-bold text-lg mb-4">{translate('contact', language)}</h3>
+                <div className="flex items-center space-x-2 mb-2">
+                  <Mail className="w-5 h-5" />
+                  <p>admin@inno-curve.com</p>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Phone className="w-5 h-5" />
+                  <p>010-1234-5678</p>
+                </div>
               </div>
-              <div className="w-full max-w-2xl mx-auto">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <ProfileItem label={translate('birth', language)} value={[translate('birthDate', language)]} className="text-center" />
-                  <ProfileItem label={translate('mbti', language)} value={[translate('mbtiType', language)]} className="text-center" />
-                  <ProfileItem 
-                    label={translate('affiliation', language)} 
-                    value={translate('affiliationDescription', language).split('\n')} 
-                    className="text-center"
-                  />
-                  <ProfileItem 
-                    label={translate('education', language)} 
-                    value={translate('educationDescription', language).split('\n')} 
-                    className="text-center"
-                  />
-                  <ProfileItem 
-                    label={translate('field', language)} 
-                    value={[translate('fieldDescription', language)]} 
-                    className="text-center"
-                  />
+              <div>
+                <h3 className="font-bold text-lg mb-4">{translate('affiliation', language)}</h3>
+                <div className="space-y-2">
+                  <p className="block text-white">
+                    {translate('affiliations_1', language)}
+                  </p>
+                  <p>{translate('affiliations_2', language)}</p>
+                </div>
+              </div>
+              <div>
+                <h3 className="font-bold text-lg mb-4">{translate('socialMedia', language)}</h3>
+                <div className="space-y-2">
+                  <Link href="https://www.instagram.com/inno_curve/" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 hover:text-[#EA0029] transition duration-100">
+                    <span>Instagram</span>
+                  </Link>
+                  <p className="text-white">Naver</p>
+                  <p className="text-white">Facebook</p>
                 </div>
               </div>
             </div>
-          </section>
-        </FadeInSection>
-      </div>
-
-      <div className="w-full overflow-x-hidden">
-        <FadeInSection>
-          <section id="smart-options" className="mb-8">
-            <ContactOptions language={language} />
-          </section>
-        </FadeInSection>
-      </div>
-
-      <div className="w-full overflow-x-hidden">
-        <FadeInSection>
-          <section id="history" className="mb-8 bg-white dark:bg-gray-800 rounded-xl p-8 shadow-lg overflow-hidden relative">
-            <History />
-          </section>
-        </FadeInSection>
-      </div>
-      <div className="w-full overflow-x-hidden">
-        <FadeInSection>
-          <section id="values" className="mb-8 pt-8">
-            <MyValues language={language} />
-          </section>
-        </FadeInSection>
-      </div>
-      <div className="w-full overflow-x-hidden">
-        <FadeInSection>
-          <section id="community" className="py-16">
-            <div className="container mx-auto px-4">
-              <Swiper
-                modules={[Navigation, Pagination, Autoplay]}
-                spaceBetween={20}
-                slidesPerView={1}
-                navigation={true}
-                pagination={{ 
-                  clickable: true,
-                  bulletActiveClass: 'swiper-pagination-bullet-active !bg-[#ea0029]'
-                }}
-                loop={posts.length > 1}
-                autoplay={{
-                  delay: 3000,
-                  disableOnInteraction: false,
-                  pauseOnMouseEnter: true,
-                  stopOnLastSlide: false
-                }}
-                breakpoints={{
-                  0: {
-                    slidesPerView: 1,
-                    spaceBetween: 10,
-                  },
-                  640: {
-                    slidesPerView: Math.min(2, posts.length),
-                    spaceBetween: 20,
-                  },
-                  1024: {
-                    slidesPerView: Math.min(3, posts.length),
-                    spaceBetween: 20,
-                  }
-                }}
-                className="swiper-container !pb-12 [&_.swiper-button-next]:!text-[#ea0029] [&_.swiper-button-prev]:!text-[#ea0029]"
-              >
-                {posts.map((post) => (
-                  <SwiperSlide 
-                    key={post.id}
-                    className="h-[340px]"
-                  >
-                    <div
-                      onClick={() => handlePostClick(post.id)}
-                      className="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-900/30 cursor-pointer transform transition-all duration-300 hover:scale-105 h-[340px] flex flex-col border border-gray-100 dark:border-gray-700"
-                    >
-                      <div className="relative h-[200px] rounded-t-lg overflow-hidden bg-gray-50 dark:bg-gray-700 flex items-center justify-center">
-                        <Image
-                          src={post.image}
-                          alt={post.title[language]}
-                          fill
-                          className="object-cover"
-                          priority
-                        />
-                      </div>
-                      <div className="p-4 flex flex-col flex-1">
-                        <h3 className="text-lg font-semibold mb-2 overflow-hidden whitespace-pre-line text-gray-900 dark:text-white"
-                            style={{
-                              display: '-webkit-box',
-                              WebkitBoxOrient: 'vertical',
-                              WebkitLineClamp: '2',
-                              minHeight: '3.5rem',
-                              lineHeight: '1.5rem'
-                            }}
-                        >{post.title[language]}</h3>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm mb-3 overflow-hidden"
-                           style={{
-                             display: '-webkit-box',
-                             WebkitBoxOrient: 'vertical',
-                             WebkitLineClamp: '3',
-                             minHeight: '3rem',
-                             lineHeight: '1.25rem'
-                           }}
-                        >{post.description[language]}</p>
-                        <div className="flex flex-wrap gap-2 mt-auto">
-                          {post.tags[language].map((tag, index) => (
-                            <span key={index} className="text-xs text-gray-900 dark:text-gray-100 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-full">
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-            </div>
-          </section>
-        </FadeInSection>
-      </div>
-    </main>
-
-    <ShareButton language={language} />
-
-    <footer className="bg-gray-800 dark:bg-gray-800 text-white py-12 mt-12">
-      <div className="max-w-4xl mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div>
-            <h3 className="font-bold text-lg mb-4">{translate('contact', language)}</h3>
-            <div className="flex items-center space-x-2 mb-2">
-              <Mail className="w-5 h-5" />
-              <p>admin@inno-curve.com</p>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Phone className="w-5 h-5" />
-              <p>010-1234-5678</p>
+            <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+              <p>All rights reserved.</p>
             </div>
           </div>
-          <div>
-            <h3 className="font-bold text-lg mb-4">{translate('affiliation', language)}</h3>
-            <div className="space-y-2">
-              <p className="block text-white">
-                {translate('affiliations_1', language)}
-              </p>
-              <p>{translate('affiliations_2', language)}</p>
-            </div>
-          </div>
-          <div>
-            <h3 className="font-bold text-lg mb-4">{translate('socialMedia', language)}</h3>
-            <div className="space-y-2">
-              <Link href="https://www.instagram.com/inno_curve/" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 hover:text-[#EA0029] transition duration-100">
-                <span>Instagram</span>
-              </Link>
-              <p className="text-white">Naver</p>
-              <p className="text-white">Facebook</p>
-            </div>
-          </div>
-        </div>
-        <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
-          <p>All rights reserved.</p>
-        </div>
+        </footer>
       </div>
-    </footer>
+    </div>
   </div>
 )
 }

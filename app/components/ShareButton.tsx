@@ -97,10 +97,10 @@ export default function ShareButton({ language }: ShareButtonProps) {
           {canNativeShare && (
             <button 
               onClick={nativeShare}
-              className="flex items-center gap-3 w-full px-4 py-3.5 text-left hover:bg-gray-50 transition-colors duration-100 group"
+              className="flex items-center gap-3 w-full px-4 py-3.5 text-left hover:bg-gray-50 transition-colors group"
             >
-              <Share className="w-5 h-5 text-gray-900 group-hover:text-[#EA0029] transition-colors duration-100" />
-              <span className="text-gray-900 group-hover:text-[#EA0029] transition-colors duration-100">
+              <Share className="w-5 h-5 text-gray-900 group-hover:text-[#EA0029] transition-colors" />
+              <span className="text-gray-900 group-hover:text-[#EA0029] transition-colors">
                 공유하기
               </span>
             </button>
@@ -108,20 +108,20 @@ export default function ShareButton({ language }: ShareButtonProps) {
           
           <button 
             onClick={copyLink}
-            className={`flex items-center gap-3 w-full px-4 py-3.5 text-left hover:bg-gray-50 transition-colors duration-100 group ${canNativeShare ? 'border-t border-gray-200' : ''}`}
+            className={`flex items-center gap-3 w-full px-4 py-3.5 text-left hover:bg-gray-50 transition-colors group ${canNativeShare ? 'border-t border-gray-200' : ''}`}
           >
-            <Link2 className="w-5 h-5 text-gray-900 group-hover:text-[#EA0029] transition-colors duration-100" />
-            <span className="text-gray-900 group-hover:text-[#EA0029] transition-colors duration-100">
+            <Link2 className="w-5 h-5 text-gray-900 group-hover:text-[#EA0029] transition-colors" />
+            <span className="text-gray-900 group-hover:text-[#EA0029] transition-colors">
               링크 복사
             </span>
           </button>
 
           <button 
             onClick={goToInquiry}
-            className="flex items-center gap-3 w-full px-4 py-3.5 text-left hover:bg-gray-50 transition-colors duration-100 group border-t border-gray-200"
+            className="flex items-center gap-3 w-full px-4 py-3.5 text-left hover:bg-gray-50 transition-colors group border-t border-gray-200"
           >
-            <ExternalLink className="w-5 h-5 text-gray-900 group-hover:text-[#EA0029] transition-colors duration-100" />
-            <span className="text-gray-900 group-hover:text-[#EA0029] transition-colors duration-100">
+            <ExternalLink className="w-5 h-5 text-gray-900 group-hover:text-[#EA0029] transition-colors" />
+            <span className="text-gray-900 group-hover:text-[#EA0029] transition-colors">
               문의하기
             </span>
           </button>
