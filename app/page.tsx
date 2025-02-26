@@ -21,6 +21,7 @@ import ContactOptions from './components/ContactOptions'
 import type { PostData } from './types/post'
 import ShareButton from './components/ShareButton'
 import { useDarkMode } from './hooks/useDarkMode'
+import Search from './components/Search'
 
 export default function Home() {
 const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -236,6 +237,7 @@ return (
                   <Link href="#smart-options" onClick={(e) => handleScrollTo(e, 'smart-options')} className="text-[#05141F] hover:text-[#EA0029] transition-colors">{translate('smartOptions', language)}</Link>
                   <Link href="#history" onClick={(e) => handleScrollTo(e, 'history')} className="text-[#05141F] hover:text-[#EA0029] transition-colors">{translate('history', language)}</Link>
                   <Link href="#values" onClick={(e) => handleScrollTo(e, 'values')} className="text-[#05141F] hover:text-[#EA0029] transition-colors">{translate('values', language)}</Link>
+                  <Link href="#search" onClick={(e) => handleScrollTo(e, 'search')} className="text-[#05141F] hover:text-[#EA0029] transition-colors">{translate('search', language)}</Link>
                   <Link href="#community" onClick={(e) => handleScrollTo(e, 'community')} className="text-[#05141F] hover:text-[#EA0029] transition-colors">{translate('activities', language)}</Link>
                 </nav>
                 <LanguageToggle />
@@ -267,6 +269,7 @@ return (
                 <Link href="#smart-options" onClick={(e) => { setIsMenuOpen(false); handleScrollTo(e, 'smart-options'); }} className="block py-5 px-6 text-[#05141F] hover:text-[#EA0029] transition-colors font-mono tracking-tight border-b border-gray-100 hover:bg-gray-50">{translate('smartOptions', language)}</Link>
                 <Link href="#history" onClick={(e) => { setIsMenuOpen(false); handleScrollTo(e, 'history'); }} className="block py-5 px-6 text-[#05141F] hover:text-[#EA0029] transition-colors font-mono tracking-tight border-b border-gray-100 hover:bg-gray-50">{translate('history', language)}</Link>
                 <Link href="#values" onClick={(e) => { setIsMenuOpen(false); handleScrollTo(e, 'values'); }} className="block py-5 px-6 text-[#05141F] hover:text-[#EA0029] transition-colors font-mono tracking-tight border-b border-gray-100 hover:bg-gray-50">{translate('values', language)}</Link>
+                <Link href="#search" onClick={(e) => { setIsMenuOpen(false); handleScrollTo(e, 'search'); }} className="block py-5 px-6 text-[#05141F] hover:text-[#EA0029] transition-colors font-mono tracking-tight border-b border-gray-100 hover:bg-gray-50">{translate('search', language)}</Link>
                 <Link href="#community" onClick={(e) => { setIsMenuOpen(false); handleScrollTo(e, 'community'); }} className="block py-5 px-6 text-[#05141F] hover:text-[#EA0029] transition-colors font-mono tracking-tight hover:bg-gray-50">{translate('activities', language)}</Link>
               </div>
             </motion.nav>
@@ -348,7 +351,15 @@ return (
           </div>
           <div className="w-full overflow-x-hidden">
             <FadeInSection>
-              <section id="community" className="py-16">
+              <section id="search" className="mb-8 pt-16">
+                <h2 className="text-3xl font-bold mb-6 text-center text-[#05141F]">{translate('search', language)}</h2>
+                <Search language={language} className="max-w-2xl mx-auto" />
+              </section>
+            </FadeInSection>
+          </div>
+          <div className="w-full overflow-x-hidden">
+            <FadeInSection>
+              <section id="community" className="py-8">
                 <div className="container mx-auto px-4">
                   <Swiper
                     modules={[Navigation, Pagination, Autoplay]}

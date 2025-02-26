@@ -412,6 +412,54 @@ export const translations: TranslationDictionary = {
     ja: '共有とお問い合わせ',
     zh: '分享和咨询',
   },
+  search: {
+    ko: '검색',
+    en: 'Search',
+    ja: '検索',
+    zh: '搜索'
+  },
+  searchPlaceholder: {
+    ko: '검색어를 입력하세요',
+    en: 'Enter search term',
+    ja: '検索語を入力してください',
+    zh: '请输入搜索词'
+  },
+  searchResult: {
+    ko: '검색 결과',
+    en: 'Search Result',
+    ja: '検索結果',
+    zh: '搜索结果'
+  },
+  searching: {
+    ko: '검색 중...',
+    en: 'Searching...',
+    ja: '検索中...',
+    zh: '搜索中...'
+  },
+  readMore: {
+    ko: '자세히 보기',
+    en: 'Read More',
+    ja: '詳細を見る',
+    zh: '查看详情'
+  },
+  sources: {
+    ko: '출처',
+    en: 'Sources',
+    ja: '出典',
+    zh: '来源'
+  },
+  additionalInfo: {
+    ko: '추가 정보',
+    en: 'Additional Information',
+    ja: '追加情報',
+    zh: '附加信息'
+  },
+  noResults: {
+    ko: '검색 결과가 없습니다.',
+    en: 'No results found.',
+    ja: '検索結果がありません。',
+    zh: '没有找到相关结果。'
+  },
 };
 
 // 음성 대화 페이지 설명 통합
