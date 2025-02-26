@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1920" height="1080" viewBox="0 0 1920 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="nodeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:0.9"/>
+      <stop offset="50%" style="stop-color:#2563EB;stop-opacity:0.9"/>
+      <stop offset="100%" style="stop-color:#0EA5E9;stop-opacity:0.9"/>
+    </linearGradient>
+    <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:0.15"/>
+      <stop offset="50%" style="stop-color:#2563EB;stop-opacity:0.15"/>
+      <stop offset="100%" style="stop-color:#0EA5E9;stop-opacity:0.15"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <g opacity="0.9" transform="translate(0, 200)">
+    <!-- 대각선 패턴 -->
+    <path d="M-200 -100 L2120 1180 M-400 -100 L1920 1180 M0 -100 L2320 1180 M-200 100 L1920 1180 M-400 -300 L1920 980" 
+          stroke="url(#lineGradient)" stroke-width="1.5" />
+    
+    <!-- 곡선 연결선 -->
+    <path d="M300,300 Q600,100 900,400 T1500,300" stroke="url(#lineGradient)" stroke-width="2" filter="url(#glow)" />
+    <path d="M200,500 Q500,300 800,600 T1400,500" stroke="url(#lineGradient)" stroke-width="2" filter="url(#glow)" />
+    <path d="M400,200 Q700,400 1000,200 T1600,400" stroke="url(#lineGradient)" stroke-width="2" filter="url(#glow)" />
+    <path d="M100,400 Q400,600 700,400 T1300,600" stroke="url(#lineGradient)" stroke-width="2" filter="url(#glow)" />
+    <path d="M500,100 Q800,300 1100,100 T1700,300" stroke="url(#lineGradient)" stroke-width="2" filter="url(#glow)" />
+    
+    <!-- 주요 노드 -->
+    <circle cx="300" cy="300" r="10" fill="url(#nodeGradient)" filter="url(#glow)" />
+    <circle cx="900" cy="400" r="14" fill="url(#nodeGradient)" filter="url(#glow)" />
+    <circle cx="1500" cy="300" r="10" fill="url(#nodeGradient)" filter="url(#glow)" />
+    <circle cx="200" cy="500" r="12" fill="url(#nodeGradient)" filter="url(#glow)" />
+    <circle cx="800" cy="600" r="14" fill="url(#nodeGradient)" filter="url(#glow)" />
+    <circle cx="1400" cy="500" r="10" fill="url(#nodeGradient)" filter="url(#glow)" />
+    <circle cx="400" cy="200" r="12" fill="url(#nodeGradient)" filter="url(#glow)" />
+    <circle cx="1000" cy="200" r="14" fill="url(#nodeGradient)" filter="url(#glow)" />
+    <circle cx="1600" cy="400" r="10" fill="url(#nodeGradient)" filter="url(#glow)" />
+    
+    <!-- 작은 노드들 -->
+    <g opacity="0.7">
+      <circle cx="600" cy="100" r="6" fill="url(#nodeGradient)" filter="url(#glow)" />
+      <circle cx="800" cy="300" r="5" fill="url(#nodeGradient)" filter="url(#glow)" />
+      <circle cx="1200" cy="250" r="6" fill="url(#nodeGradient)" filter="url(#glow)" />
+      <circle cx="1400" cy="400" r="5" fill="url(#nodeGradient)" filter="url(#glow)" />
+      <circle cx="700" cy="550" r="6" fill="url(#nodeGradient)" filter="url(#glow)" />
+      <circle cx="500" cy="450" r="5" fill="url(#nodeGradient)" filter="url(#glow)" />
+      <circle cx="1100" cy="500" r="6" fill="url(#nodeGradient)" filter="url(#glow)" />
+      <circle cx="900" cy="150" r="5" fill="url(#nodeGradient)" filter="url(#glow)" />
+    </g>
+    
+    <!-- 미니 노드들 -->
+    <g opacity="0.5">
+      <circle cx="400" cy="350" r="3" fill="url(#nodeGradient)" />
+      <circle cx="700" cy="250" r="3" fill="url(#nodeGradient)" />
+      <circle cx="1000" cy="450" r="3" fill="url(#nodeGradient)" />
+      <circle cx="1300" cy="350" r="3" fill="url(#nodeGradient)" />
+      <circle cx="600" cy="550" r="3" fill="url(#nodeGradient)" />
+      <circle cx="900" cy="650" r="3" fill="url(#nodeGradient)" />
+      <circle cx="1200" cy="550" r="3" fill="url(#nodeGradient)" />
+      <circle cx="1500" cy="650" r="3" fill="url(#nodeGradient)" />
+    </g>
+  </g>
+</svg> 

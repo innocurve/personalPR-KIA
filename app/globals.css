@@ -1,0 +1,210 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 스크롤바 숨기기 */
+* {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+*::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
+}
+
+/* 다크모드 전환 애니메이션 */
+* {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 217.2 32.6% 17.5%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 210 40% 98%;
+    --accent-foreground: 217.2 32.6% 17.5%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 48%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* 다크모드 추가 스타일 */
+.dark {
+  color-scheme: dark;
+  background-color: rgb(17, 24, 39);
+  color: rgb(243, 244, 246);
+}
+
+.dark .card {
+  @apply bg-gray-800 border-gray-700;
+}
+
+.dark .text-primary {
+  @apply text-gray-100;
+}
+
+.dark .text-secondary {
+  @apply text-gray-300;
+}
+
+.dark .text-muted {
+  @apply text-gray-400;
+}
+
+.dark .border-light {
+  @apply border-gray-700;
+}
+
+.dark .bg-card {
+  @apply bg-gray-800;
+}
+
+.dark .hover-effect {
+  @apply hover:bg-gray-700;
+}
+
+/* 네트워크 그래프 다크모드 */
+.dark .network-graph {
+  @apply text-blue-300;
+  opacity: 0.4;
+  filter: brightness(1.5) contrast(1.2);
+}
+
+/* 네비게이션 통일 스타일 */
+.nav-link {
+  @apply font-mono tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 transition duration-300;
+}
+
+.dark .nav-link {
+  @apply from-blue-400 to-cyan-400 hover:from-blue-300 hover:to-cyan-300;
+}
+
+/* 다크모드 텍스트 색상 통일 */
+.dark .text-content {
+  @apply text-gray-300;
+}
+
+.dark .text-title {
+  @apply text-white;
+}
+
+.dark .text-subtitle {
+  @apply text-gray-300;
+}
+
+.dark .text-label {
+  @apply text-blue-400;
+}
+
+/* 다크모드 토스트 메시지 스타일 */
+.dark [data-sonner-toast] {
+  background-color: #1f2937 !important;
+  color: #f3f4f6 !important;
+  border-color: #374151 !important;
+}
+
+.dark [data-sonner-toast] [data-success] {
+  background-color: #065f46 !important;
+}
+
+.dark [data-sonner-toast] [data-error] {
+  background-color: #7f1d1d !important;
+}
+
+.dark [data-sonner-toast] [data-info] {
+  background-color: #1e40af !important;
+}
+
+.dark [data-sonner-toast] [data-warning] {
+  background-color: #92400e !important;
+}
+
+/* 토스트 메시지 클래스 */
+.dark-toast {
+  @apply dark:bg-gray-800 dark:text-white dark:border-gray-700;
+}
+
+.toast-success {
+  @apply bg-green-50 text-green-800 border-green-200;
+}
+
+.dark .toast-success {
+  @apply bg-green-900 text-green-100 border-green-800;
+}
+
+.toast-error {
+  @apply bg-red-50 text-red-800 border-red-200;
+}
+
+.dark .toast-error {
+  @apply bg-red-900 text-red-100 border-red-800;
+}
+
+.toast-info {
+  color: #111827 !important;
+}
+
+.dark .toast-info {
+  color: #f9fafb !important;
+}
