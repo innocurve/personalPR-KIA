@@ -15,17 +15,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [isInitialized, setIsInitialized] = useState(false)
 
   useEffect(() => {
-    // 클라이언트 사이드에서만 실행
-    const savedMode = storage.get('darkMode')
-    
-    if (savedMode !== null) {
-      setIsDarkMode(savedMode === 'true')
-    } else {
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-      setIsDarkMode(prefersDark)
-      storage.set('darkMode', String(prefersDark))
-    }
-    
+    // 항상 라이트모드로 시작
+    setIsDarkMode(false)
+    storage.set('darkMode', 'false')
     setIsInitialized(true)
   }, [])
 
