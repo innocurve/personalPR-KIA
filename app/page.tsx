@@ -30,99 +30,89 @@ const [posts, setPosts] = useState<PostData[]>([
   { 
     id: 1, 
     title: {
-      ko: '(사)대한청년을세계로\n미래전략포럼 개최',
-      en: 'Future Strategy Forum held by\nKorean Youth to the World Association',
-      ja: '(社)大韓青年を世界へ\n未来戦略フォーラム開催',
-      zh: '(社)韩国青年走向世界\n举办未来战略论坛',
+      ko: 'RAY EV',
+      en: 'RAY EV',
+      ja: 'RAY EV',
+      zh: 'RAY EV',
     },
-    image: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/%EB%AF%B8%EB%9E%98%EC%A0%84%EB%9E%B5%ED%8F%AC%EB%9F%BC.jpg-lobjD33dLn9HHvFaqwYC57KhFIHDJb.jpeg',
+    image: '/postimage/id1image.png',
     description: {
-      ko: '기술혁신의 시대속에서 청년들의 미래를 위한 전략을 논의하는 포럼을 개최합니다.',
-      en: 'Hosting a forum to discuss strategies for the future of youth in the era of technological innovation.',
-      ja: '技術革新の時代における若者の未来のための戦略を議論するフォーラムを開催します。',
-      zh: '举办论坛，讨论技术创新时代青年未来的战略。',
+      ko: '미래를 위한 선택, 친환경 전기차\nKIA의 혁신적인 EV 모델로 지속 가능한 드라이빙을 경험하세요.',
+      en: 'Experience sustainable driving with\nKia\'s innovative EV models, a choice for the future.',
+      ja: 'ファミリーと一緒に,\nKIAのイノベーティブなEVモデルを体験してください。',
+      zh: '与家人一起体验\nKIA的革新性EV车型，为未来做出选择。',
     },
     tags: {
-      ko: ['#청년미래', '#기술혁신', '#전략포럼', '#글로벌비전'],
-      en: ['#YouthFuture', '#TechInnovation', '#StrategyForum', '#GlobalVision'],
-      ja: ['#青年未来', '#技術革新', '#戦略フォーラム', '#グローバルビジョン'],
-      zh: ['#青年未来', '#技术创新', '#战略论坛', '#全球愿景']
+      ko: ['#KIA', '#RAY EV', '#친환경', '#전기차'],
+      en: ['#KIA', '#RAY EV', '#SustainableDriving', '#ElectricCar'],
+      ja: ['#KIA', '#RAY EV', '#環境保護', '#電気自動車'],
+      zh: ['#KIA', '#RAY EV', '#环境保护', '#电车']
     }
   },
   { 
     id: 2, 
     title: {
-      ko: '이노커브 InnoCard',
-      en: 'Innocurve InnoCard',
-      ja: 'イノカーブ InnoCard',
-      zh: 'InnoCurve InnoCard',
+      ko: 'K9',
+      en: 'K9',
+      ja: 'K9',
+      zh: 'K9',
     },
-    image: '/og-image.png',
+    image: '/postimage/id2image.png',
     description: {
-      ko: '종이 명함을 넘어 자신만의 웹사이트로 나를 표현하고, 연결하며, 확장할 수 있는 AI 전자명함 서비스를 소개합니다. 당신의 이야기를 담고, 네트워크를 스마트하게 이어주는 디지털 공간을 만나보세요.',
-      en: 'Introducing AI digital business cards that go beyond paper, allowing you to express, connect, and expand through your own website. Discover a digital space that holds your story and smartly connects your network.',
-      ja: '紙の名刺を超え、自分だけのウェブサイトで自己表現、つながり、拡張できるAIデジタル名刺サービスをご紹介します。あなたのストーリーを込め、ネットワークをスマートにつなぐデジタル空間をご体験ください。',
-      zh: '介绍一款超越纸质名片的AI电子名片服务，您可以通过自己的网站来表达、连接和扩展自己。探索一个承载您的故事并智能连接您的网络的数字空间。',
+      ko: '편안하고 세련된 스타일\n일상과 여행을 위한 최적의 승용 라인업을 만나보세요.',
+      en: 'Experience comfortable and sophisticated style\nfor everyday and travel with the optimal passenger lineup.',
+      ja: '快適で洗練されたスタイル\n日常と旅行に最適な乗用車ラインアップをご体験ください。',
+      zh: '体验舒适和精致的风格\n日常和旅行中体验最佳的乘用车阵容。',
     },
     tags: {
-      ko: ['#전자명함', '#개인브랜딩', '#네트워크확장', '#AI솔루션'],
-      en: ['#DigitalCard', '#PersonalBranding', '#NetworkExpansion', '#AISolution'],
-      ja: ['#デジタル名刺', '#個人ブランディング', '#ネットワーク拡張', '#AIソリューション'],
-      zh: ['#电子名片', '#个人品牌', '#网络扩展', '#AI解决方案']
+      ko: ['#KIA', '#K9', '#승용차', '#편안함'],
+      en: ['#KIA', '#K9', '#PassengerCar', '#Comfort'],
+      ja: ['#KIA', '#K9', '#乗用車', '#快適さ'],
+      zh: ['#KIA', '#K9', '#乘用车', '#舒适']
     }
   },
   { 
     id: 3, 
     title: {
-      ko: '이노커브 AIConnect',
-      en: 'Innocurve AIConnect',
-      ja: 'イノカーブ AIConnect',
-      zh: 'InnoCurve AIConnect',
+      ko: '쏘렌토',
+      en: 'Sorento',
+      ja: 'ソレント',
+      zh: '索兰托',
     },
-    image: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/INNOCURVE-UEJ6P4SmjI6dvCbd6jXEsOFWMdMjqW.png',
+    image: '/postimage/id3image.png',
     description: {
-      ko: '기술 발전의 혜택을 누구나 누릴 수 있도록, 각 산업별 맞춤형 AI 컨설팅과 최적화된 솔루션을 제공합니다.',
-      en: 'We provide customized AI consulting and optimized solutions for each industry to ensure everyone can enjoy the benefits of technological advancement.',
-      ja: '技術発展の恩恵を誰もが享受できるよう、各産業別にカスタマイズされたAIコンサルティングと最適化されたソリューションを提供します。',
-      zh: '我们为各个行业提供定制的AI咨询和优化的解决方案，以确保每个人都能享受到技术进步的益处。',
+      ko: '넓은 공간과 실용성\n다양한 라이프스타일에 맞춘 다재다능한 모델을 제공합니다.',
+      en: 'Experience spaciousness and practicality\nwith a versatile model tailored to various lifestyles.',
+      ja: '広い空間と実用性\nさまざまなライフスタイルに合わせた多機能なモデルを提供します。',
+      zh: '宽敞的空间和实用性\n满足各种生活方式的多种功能模型。',
     },
     tags: {
-      ko: ['#AI컨설팅', '#맞춤형솔루션', '#기술혁신', '#산업최적화'],
-      en: ['#AIConsulting', '#CustomSolutions', '#TechInnovation', '#IndustryOptimization'],
-      ja: ['#AIコンサルティング', '#カスタマイズソリューション', '#技術革新', '#産業最適化'],
-      zh: ['#AI咨询', '#定制解决方案', '#技术创新', '#产业优化']
+      ko: ['#KIA', '#쏘렌토', '#SUV', '#실용성'],
+      en: ['#KIA', '#Sorento', '#SUV', '#Practicality'],
+      ja: ['#KIA', '#ソレント', '#SUV', '#実用性'],
+      zh: ['#KIA', '#索兰托', '#SUV', '#实用性']
     }
   },
   { 
     id: 4, 
     title: {
-      ko: '이노커브 마케팅',
-      en: 'Innocurve Marketing',
-      ja: 'イノカーブマーケティング',
-      zh: 'InnoCurve营销',
+      ko: '봉고III 파워게이트',
+      en: 'BonggoIII Powergate',
+      ja: 'ボンゴIII パワーゲート',
+      zh: 'BonggoIII 动力门',
     },
     image: '/postimage/id4image.png',
-    images: [
-      '/postimage/id4image2.png',
-      '/postimage/id4image3.png',
-      '/postimage/id4image4.png',
-      '/postimage/id4image5.png',
-      '/postimage/id4image6.png',
-      '/postimage/id4image7.png',
-      '/postimage/id4image8.png',
-      '/postimage/id4image9.png'
-    ],
     description: {
-      ko: 'AI를 활용한 홈페이지, 이미지, 영상 등 다양한 디지털 콘텐츠 제작을 통해 비용은 효율적으로 절감하고, 최상의 퀄리티로 효과적인 홍보를 지원합니다.',
-      en: 'We support effective promotion with top quality while efficiently reducing costs through the production of various digital content such as AI-powered websites, images, and videos.',
-      ja: 'AIを活用したホームページ、画像、動画など、さまざまなデジタルコンテンツの制作を通じてコストを効率的に削減し、最高の品質で効果的なプロモーションをサポートします。',
-      zh: '通过制作AI驱动的网站、图像和视频等各种数字内容，有效降低成本，并以最高质量支持有效的推广。',
+      ko: '비즈니스 최적화\n경제성과 내구성을 겸비한 최적의 솔루션을 제공합니다.',
+      en: 'Optimize your business\nwith cost-effective and durable solutions.',
+      ja: 'ビジネスを最適化する\nコスト効率と持続可能なソリューションを提供します。',
+      zh: '优化您的业务\n提供成本效益和可持续的解决方案。',
     },
     tags: {
-      ko: ['#AI마케팅', '#디지털콘텐츠', '#비용효율화', '#퀄리티향상'],
-      en: ['#AIMarketing', '#DigitalContent', '#CostEfficiency', '#QualityImprovement'],
-      ja: ['#AIマーケティング', '#デジタルコンテンツ', '#コスト効率化', '#品質向上'],
-      zh: ['#AI营销', '#数字内容', '#成本效率', '#质量提升']
+      ko: ['#KIA', '#봉고III', '#비즈니스', '#경제성'],
+      en: ['#KIA', '#BonggoIII', '#Business', '#Economy'],
+      ja: ['#KIA', '#ボンゴIII', '#ビジネス', '#経済性'],
+      zh: ['#KIA', '#BonggoIII', '#商业', '#经济性']
     }
   }
 ]);
@@ -432,7 +422,7 @@ return (
                             >{post.description[language]}</p>
                             <div className="flex flex-wrap gap-2 mt-auto">
                               {post.tags[language].map((tag, index) => (
-                                <span key={index} className="text-xs text-gray-900 bg-gray-100 px-2 py-1 rounded-full">
+                                <span key={index} className="text-xs text-gray-900 bg-gray-100 px-2 py-1 rounded-full whitespace-pre-line">
                                   {tag}
                                 </span>
                               ))}

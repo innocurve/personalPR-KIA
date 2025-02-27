@@ -112,7 +112,7 @@ export default function PostDetail() {
               {post.title[language]}
             </h1>
             <div className="prose prose-sm sm:prose-base md:prose-lg max-w-none dark:prose-invert">
-              <p className="text-[#05141F] leading-relaxed">
+              <p className="text-[#05141F] leading-relaxed whitespace-pre-line">
                 {post.description[language]}
               </p>
             </div>
