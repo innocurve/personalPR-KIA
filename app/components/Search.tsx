@@ -107,6 +107,17 @@ export default function Search({ language, className = '' }: SearchProps) {
           </div>
         )}
 
+        {isLoading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm z-10 rounded-lg">
+            <div className="flex flex-col items-center gap-3">
+              <Loader2 className="w-8 h-8 animate-spin text-[#EA0029]" />
+              <span className="text-gray-600 dark:text-gray-300 font-medium">
+                {translate('searching', language)}
+              </span>
+            </div>
+          </div>
+        )}
+
         {results.length > 0 && (
           <div className="space-y-6">
             {results.map((result, index) => (
@@ -119,7 +130,7 @@ export default function Search({ language, className = '' }: SearchProps) {
                     {result.title}
                   </h3>
                 )}
-                <p className="text-gray-600 dark:text-gray-300 whitespace-pre-line text-base leading-relaxed mb-4">
+                <p className="text-gray-600 dark:text-gray-300 whitespace-pre-line text-base leading-relaxed mb-4 break-words">
                   {result.text}
                 </p>
                 {result.sources && result.sources.length > 0 && (
@@ -127,14 +138,14 @@ export default function Search({ language, className = '' }: SearchProps) {
                     <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
                       {translate('sources', language)}:
                     </h4>
-                    <ul className="list-disc list-inside space-y-1">
+                    <ul className="list-none space-y-1">
                       {result.sources.map((source, idx) => (
                         <li key={idx} className="text-sm text-blue-600 dark:text-blue-400">
                           <a 
                             href={source} 
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="hover:underline break-all"
+                            className="hover:underline break-all inline-block max-w-full overflow-hidden text-ellipsis"
                           >
                             {new URL(source).hostname}
                           </a>
@@ -165,17 +176,6 @@ export default function Search({ language, className = '' }: SearchProps) {
                 )}
               </div>
             ))}
-          </div>
-        )}
-
-        {isLoading && (
-          <div className="flex items-center justify-center py-8">
-            <div className="flex flex-col items-center gap-3">
-              <Loader2 className="w-8 h-8 animate-spin text-[#EA0029]" />
-              <span className="text-gray-600 dark:text-gray-300 font-medium">
-                {translate('searching', language)}
-              </span>
-            </div>
           </div>
         )}
       </div>

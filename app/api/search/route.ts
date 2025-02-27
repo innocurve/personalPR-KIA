@@ -120,7 +120,48 @@ export async function POST(request: Request) {
 
       sections.forEach((section: string) => {
         if (section.startsWith('[요약]')) {
-          summary = section.replace('[요약]\n', '').trim();
+          // 1. 기본적인 텍스트 정리
+          let processedText = section
+            .replace('[요약]\n', '')
+            .replace(/\[\d+\]/g, '') // 참조 번호 제거
+            .replace(/\d+\)/g, '') // 숫자 리스트 제거
+            .replace(/\s+/g, ' ') // 연속된 공백 정리
+            .trim();
+
+          // 2. 문장 단위로 분리하고 처리
+          const sentences = processedText
+            .split('.')
+            .map(s => s.trim())
+            .filter(s => s.length > 0);
+
+          // 3. 각 문장 검증 및 정리
+          const validSentences = sentences.filter(sentence => {
+            // 최소 길이 체크 (의미 있는 문장인지 확인)
+            if (sentence.length < 5) return false;
+            
+            // 문장이 조사나 접속사로 끝나는지 확인
+            const koreanParticles = ['이', '가', '을', '를', '은', '는', '로', '으로'];
+            const endsWithParticle = koreanParticles.some(particle => 
+              sentence.endsWith(particle)
+            );
+            
+            // 문장이 불완전하게 끝나는지 확인
+            const hasIncompletePhrases = sentence.match(/요$|다$/);
+            
+            return !endsWithParticle && hasIncompletePhrases;
+          });
+
+          // 4. 문장 결합
+          summary = validSentences
+            .map(s => s.trim() + '.')
+            .join(' ')
+            .replace(/\.\./g, '.') // 중복 마침표 제거
+            .trim();
+
+          // 5. 빈 결과 처리
+          if (!summary) {
+            summary = '검색 결과를 찾을 수 없습니다.';
+          }
         } else if (section.startsWith('[출처]')) {
           sources = section
             .replace('[출처]\n', '')
@@ -132,7 +173,13 @@ export async function POST(request: Request) {
             })
             .filter((url): url is string => url !== null);
         } else if (section.startsWith('[추가 정보]')) {
-          additionalInfo = section.replace('[추가 정보]\n', '').trim();
+          // 추가 정보도 동일한 정리 과정 적용
+          additionalInfo = section
+            .replace('[추가 정보]\n', '')
+            .replace(/\[\d+\]/g, '')
+            .replace(/\d+\)/g, '')
+            .replace(/\s+/g, ' ')
+            .trim();
         }
       });
 
