@@ -32,4 +32,8 @@ export interface PostData {
     }
     image: string
   }[]
+  pdfFiles?: {
+    catalog?: string;
+    price?: string;
+  }
 } 

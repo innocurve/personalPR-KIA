@@ -30,13 +30,13 @@ const ContactOptions: React.FC<ContactOptionsProps> = ({ language }) => {
       key: 'aiClone',
       title: translate('aiClone', language),
       icon: (
-        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="32" cy="20" r="12" stroke="#111111" strokeWidth="2" fill="none"/>
-          <path d="M32 36C18.7452 36 8 46.7452 8 60" stroke="#111111" strokeWidth="2" strokeLinecap="round"/>
-          <path d="M56 60C56 46.7452 45.2548 36 32 36" stroke="#111111" strokeWidth="2" strokeLinecap="round"/>
-          <path d="M32 60V48" stroke="#111111" strokeWidth="2" strokeLinecap="round"/>
-          <path d="M24 56H40" stroke="#111111" strokeWidth="2" strokeLinecap="round"/>
-          <circle cx="32" cy="20" r="4" fill="#111111"/>
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-[#05141F] group-hover:text-[#EA0029] transition-colors duration-100">
+          <circle cx="32" cy="20" r="12" stroke="currentColor" strokeWidth="2" fill="none"/>
+          <path d="M32 36C18.7452 36 8 46.7452 8 60" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+          <path d="M56 60C56 46.7452 45.2548 36 32 36" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+          <path d="M32 60V48" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+          <path d="M24 56H40" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+          <circle cx="32" cy="20" r="4" fill="currentColor"/>
         </svg>
       ),
     },
@@ -44,9 +44,9 @@ const ContactOptions: React.FC<ContactOptionsProps> = ({ language }) => {
       key: 'greetingVideo',
       title: translate('greetingVideo', language),
       icon: (
-        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="8" y="12" width="48" height="40" rx="2" stroke="#111111" strokeWidth="2" fill="none"/>
-          <path d="M28 24L40 32L28 40V24Z" fill="#111111"/>
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-[#05141F] group-hover:text-[#EA0029] transition-colors duration-100">
+          <rect x="8" y="12" width="48" height="40" rx="2" stroke="currentColor" strokeWidth="2" fill="none"/>
+          <path d="M28 24L40 32L28 40V24Z" fill="currentColor"/>
         </svg>
       ),
     },
@@ -54,12 +54,12 @@ const ContactOptions: React.FC<ContactOptionsProps> = ({ language }) => {
       key: 'phone',
       title: translate('phone', language),
       icon: (
-        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="18" y="4" width="28" height="56" rx="4" stroke="#111111" strokeWidth="2" fill="none"/>
-          <line x1="18" y1="12" x2="46" y2="12" stroke="#111111" strokeWidth="2"/>
-          <line x1="18" y1="52" x2="46" y2="52" stroke="#111111" strokeWidth="2"/>
-          <circle cx="32" cy="56" r="2" fill="#111111"/>
-          <rect x="26" y="6" width="12" height="4" rx="2" fill="#111111"/>
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-[#05141F] group-hover:text-[#EA0029] transition-colors duration-100">
+          <rect x="18" y="4" width="28" height="56" rx="4" stroke="currentColor" strokeWidth="2" fill="none"/>
+          <line x1="18" y1="12" x2="46" y2="12" stroke="currentColor" strokeWidth="2"/>
+          <line x1="18" y1="52" x2="46" y2="52" stroke="currentColor" strokeWidth="2"/>
+          <circle cx="32" cy="56" r="2" fill="currentColor"/>
+          <rect x="26" y="6" width="12" height="4" rx="2" fill="currentColor"/>
         </svg>
       ),
     },
@@ -67,7 +67,7 @@ const ContactOptions: React.FC<ContactOptionsProps> = ({ language }) => {
       key: 'innocard',
       title: translate('catalog', language),
       icon: (
-        <CarFront className="w-16 h-16 text-[#05141F]" strokeWidth={1.2} />
+        <CarFront className="w-16 h-16 text-[#05141F] group-hover:text-[#EA0029] transition-colors duration-100" strokeWidth={1.2} />
       ),
     }
   ]

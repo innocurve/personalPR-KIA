@@ -149,16 +149,52 @@ export default function PostDetail() {
             )}
 
             <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-gray-200 dark:border-gray-700">
-              <Button
-                variant="ghost"
-                className="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-[#EA0029] dark:hover:text-[#EA0029] text-sm sm:text-base"
-                onClick={() => router.push('/#community')}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
-                  <path d="M19 12H5M12 19l-7-7 7-7"/>
-                </svg>
-                {translate('backToList', language)}
-              </Button>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  variant="ghost"
+                  className="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-[#EA0029] dark:hover:text-[#EA0029] text-sm sm:text-base transition-colors duration-75"
+                  onClick={() => router.push('/#community')}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                  </svg>
+                  {translate('backToList', language)}
+                </Button>
+              </div>
+              
+              {post.pdfFiles && (
+                <div className="flex items-center gap-2">
+                  {post.pdfFiles.catalog && (
+                    <Button
+                      variant="outline"
+                      className="flex items-center gap-2 text-sm sm:text-base border-[#05141F] text-[#05141F] hover:border-[#EA0029] hover:text-[#EA0029] transition-colors duration-75"
+                      onClick={() => window.open(post.pdfFiles?.catalog, '_blank')}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                        <line x1="10" y1="9" x2="8" y2="9"/>
+                      </svg>
+                      {translate('catalog', language)}
+                    </Button>
+                  )}
+                  {post.pdfFiles.price && (
+                    <Button
+                      variant="outline"
+                      className="flex items-center gap-2 text-sm sm:text-base border-[#05141F] text-[#05141F] hover:border-[#EA0029] hover:text-[#EA0029] transition-colors duration-75"
+                      onClick={() => window.open(post.pdfFiles?.price, '_blank')}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                      </svg>
+                      {translate('price', language)}
+                    </Button>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </article>

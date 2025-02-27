@@ -228,10 +228,12 @@ export default function ChatPage() {
       <div className="max-w-3xl mx-auto shadow-sm w-full flex-1 pt-24 flex flex-col">
         <header className="flex items-center px-4 py-3 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-2">
-            <Link href="/" className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2">
-              <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-300" />
-              <span className="text-gray-600 dark:text-gray-300">Back</span>
-            </Link>
+            <div className="self-start">
+              <Link href="/" className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-[#05141F] hover:text-[#EA0029] flex items-center gap-2 transition-colors duration-75">
+                <ArrowLeft className="w-5 h-5" />
+                <span>Back</span>
+              </Link>
+            </div>
           </div>
           <div className="flex-1 flex flex-col items-center">
             <div className="w-16 h-16 relative rounded-full overflow-hidden mb-2">
@@ -249,19 +251,15 @@ export default function ChatPage() {
           <div className="flex items-center gap-2">
             <Link
               href="/voice-chat"
-              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 hover:text-[#EA0029] dark:hover:text-[#EA0029] transition-colors duration-75"
               aria-label="Voice Chat"
               title={translate('voiceChat', language)}
             >
-              <WaveformIcon className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+              <WaveformIcon className="w-5 h-5" />
             </Link>
             <button
               onClick={clearMessages}
-              className={`p-2 rounded-full ${
-                isDarkMode 
-                  ? 'hover:bg-gray-700 text-white' 
-                  : 'hover:bg-gray-100 text-gray-900'
-              }`}
+              className={`p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 hover:text-[#EA0029] dark:hover:text-[#EA0029] transition-colors duration-75`}
               aria-label="Clear chat history"
               title={translate('clearChat', language) || "채팅 내역 비우기"}
             >

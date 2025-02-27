@@ -47,6 +47,10 @@ const [posts, setPosts] = useState<PostData[]>([
       en: ['#KIA', '#RAY EV', '#SustainableDriving', '#ElectricCar'],
       ja: ['#KIA', '#RAY EV', '#環境保護', '#電気自動車'],
       zh: ['#KIA', '#RAY EV', '#环境保护', '#电车']
+    },
+    pdfFiles: {
+      catalog: '/postcatalog/catalog_ray-ev.pdf',
+      price: '/postprice/price_ray-ev.pdf'
     }
   },
   { 
@@ -69,6 +73,10 @@ const [posts, setPosts] = useState<PostData[]>([
       en: ['#KIA', '#K9', '#PassengerCar', '#Comfort'],
       ja: ['#KIA', '#K9', '#乗用車', '#快適さ'],
       zh: ['#KIA', '#K9', '#乘用车', '#舒适']
+    },
+    pdfFiles: {
+      catalog: '/postcatalog/catalog_k9.pdf',
+      price: '/postprice/price_k9.pdf'
     }
   },
   { 
@@ -91,6 +99,10 @@ const [posts, setPosts] = useState<PostData[]>([
       en: ['#KIA', '#Sorento', '#SUV', '#Practicality'],
       ja: ['#KIA', '#ソレント', '#SUV', '#実用性'],
       zh: ['#KIA', '#索兰托', '#SUV', '#实用性']
+    },
+    pdfFiles: {
+      catalog: '/postcatalog/catalog_sorento.pdf',
+      price: '/postprice/price_sorento.pdf'
     }
   },
   { 
@@ -113,6 +125,10 @@ const [posts, setPosts] = useState<PostData[]>([
       en: ['#KIA', '#BonggoIII', '#Business', '#Economy'],
       ja: ['#KIA', '#ボンゴIII', '#ビジネス', '#経済性'],
       zh: ['#KIA', '#BonggoIII', '#商业', '#经济性']
+    },
+    pdfFiles: {
+      catalog: '/postcatalog/catalog_bonggo3.pdf',
+      price: '/postprice/price_bonggo3.pdf'
     }
   }
 ]);
@@ -209,14 +225,14 @@ return (
           <div className="max-w-screen-xl mx-auto px-4">
             <div className="flex items-center justify-between py-4">
               <div className="flex items-center">
-                <Link href="/" className="flex items-center">
+                <Link href="/" className="flex items-center group">
                   <Image 
                     src="/logo.png" 
                     alt="이노커브 로고" 
                     width={160} 
                     height={64} 
                     priority
-                    className="object-contain cursor-pointer"
+                    className="object-contain cursor-pointer transition-all duration-75 group-hover:brightness-[1.75] group-hover:hue-rotate-[330deg]"
                     onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                   />
                 </Link>

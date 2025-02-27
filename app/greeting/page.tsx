@@ -79,13 +79,12 @@ export default function GreetingVideo() {
 
           <CardHeader className="relative z-10 border-b bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm dark:border-gray-700">
             <div className="flex justify-between items-center">
-              <Link 
-                href="/" 
-                className="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
-              >
-                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-                <span className="text-sm sm:text-base font-medium">Back</span>
-              </Link>
+              <div className="self-start">
+                <Link href="/" className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-[#05141F] hover:text-[#EA0029] flex items-center gap-2 transition-colors duration-75">
+                  <ArrowLeft className="w-5 h-5" />
+                  <span>Back</span>
+                </Link>
+              </div>
               <CardTitle className="inline-block w-max text-xl sm:text-2xl md:text-3xl font-bold text-[#05141F]">
                 {translate('greetingVideo', language)}
               </CardTitle>

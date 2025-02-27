@@ -79,7 +79,7 @@ export default function InquiryPage() {
           <Card className="w-full bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
             <CardHeader className="flex flex-col items-center">
               <div className="self-start">
-                <Link href="/" className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 flex items-center gap-2">
+                <Link href="/" className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-[#05141F] hover:text-[#EA0029] flex items-center gap-2 transition-colors duration-75">
                   <ArrowLeft className="w-5 h-5" />
                   <span>Back</span>
                 </Link>
@@ -156,7 +156,7 @@ export default function InquiryPage() {
                 <div className="flex justify-end">
                   <Button 
                     type="submit" 
-                    className="px-6 bg-black dark:bg-blue-600 hover:bg-gray-800 dark:hover:bg-blue-700 text-white"
+                    className="px-6 bg-black dark:bg-blue-600 hover:bg-[#EA0029] dark:hover:bg-[#EA0029] text-white transition-colors duration-75"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? '제출 중...' : translate('formSubmit', language)}

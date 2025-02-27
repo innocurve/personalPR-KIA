@@ -226,6 +226,24 @@ export const translations: TranslationDictionary = {
     ja: 'カタログ',
     zh: '目录',
   },
+  price: {
+    ko: '가격표',
+    en: 'Price',
+    ja: '価格表',
+    zh: '价格表',
+  },
+  viewPDF: {
+    ko: 'PDF 보기',
+    en: 'View PDF',
+    ja: 'PDFを見る',
+    zh: '查看PDF',
+  },
+  downloadPDF: {
+    ko: 'PDF 다운로드',
+    en: 'Download PDF',
+    ja: 'PDFをダウンロード',
+    zh: '下载PDF',
+  },
   contactOptions: {
     ko: '연락하기',
     en: 'Get in Touch',

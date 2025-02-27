@@ -350,10 +350,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
             type="button"
             onClick={isRecording ? stopRecording : startRecording}
             disabled={isLocalProcessing}
-            className={`p-2 rounded-full transition-all duration-300 ${
+            className={`p-2 rounded-full transition-colors duration-75 ${
               isRecording 
-                ? 'bg-red-100 dark:bg-red-900 text-red-500 ring-2 ring-red-500' 
-                : 'hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 hover:scale-110'
+                ? 'bg-red-100 dark:bg-red-900 text-[#EA0029] ring-2 ring-[#EA0029]' 
+                : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 hover:text-[#EA0029] dark:hover:text-[#EA0029]'
             } ${
               isLocalProcessing ? 'cursor-not-allowed opacity-50' : ''
             }`}
@@ -372,9 +372,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
               </div>
             ) : isRecording ? (
               <div className="relative">
-                <MicOff className="w-5 h-5 text-red-500" />
+                <MicOff className="w-5 h-5 text-[#EA0029]" />
                 <div
-                  className="absolute -bottom-1 -right-1 w-2 h-2 rounded-full bg-red-500 animate-pulse"
+                  className="absolute -bottom-1 -right-1 w-2 h-2 rounded-full bg-[#EA0029] animate-pulse"
                   style={{
                     transform: `scale(${1 + audioLevel / 100})`,
                     opacity: 0.8,
@@ -382,15 +382,15 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 />
               </div>
             ) : (
-              <Mic className="w-5 h-5 animate-pulse" />
+              <Mic className="w-5 h-5" />
             )}
           </button>
           <button
             type="submit"
             disabled={!message.trim() || isLocalProcessing}
-            className={`p-2 rounded-full transition-all duration-300 ${
+            className={`p-2 rounded-full transition-colors duration-75 ${
               message.trim() && !isLocalProcessing
-                ? 'bg-blue-500 text-white hover:bg-blue-600 hover:scale-110'
+                ? 'bg-[#EA0029] text-white hover:bg-[#FF1F4B]'
                 : 'bg-gray-200 dark:bg-gray-700 text-gray-400'
             }`}
           >
