@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { Search as SearchIcon, Loader2 } from 'lucide-react'
+import { useState, useRef, useEffect } from 'react'
+import { Search as SearchIcon, Loader2, Trash2 } from 'lucide-react'
 import { Language, translate } from '../utils/translations'
 
 interface SearchProps {
@@ -9,20 +9,33 @@ interface SearchProps {
   className?: string
 }
 
-interface SearchResult {
-  text: string
-  url?: string | null
-  title?: string
-  sources?: string[]
-  additionalInfo?: string
+interface Message {
+  id: string
+  role: 'user' | 'assistant'
+  content: string
+  timestamp: number
 }
 
 export default function Search({ language, className = '' }: SearchProps) {
   const [searchTerm, setSearchTerm] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [results, setResults] = useState<SearchResult[]>([])
+  const [messages, setMessages] = useState<Message[]>([])
   const [error, setError] = useState<string | null>(null)
-  const [hasSearched, setHasSearched] = useState(false)
+  const chatContainerRef = useRef<HTMLDivElement>(null)
+
+  // 채팅창 스크롤을 하단으로 이동
+  const scrollToBottom = () => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  };
+
+  // 메시지가 추가될 때마다 스크롤
+  useEffect(() => {
+    if (messages.length > 0) {
+      scrollToBottom();
+    }
+  }, [messages]);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -30,7 +43,16 @@ export default function Search({ language, className = '' }: SearchProps) {
 
     setIsLoading(true)
     setError(null)
-    setHasSearched(true)
+
+    // 사용자 메시지 추가
+    const userMessage: Message = {
+      id: crypto.randomUUID(),
+      role: 'user',
+      content: searchTerm.trim(),
+      timestamp: Date.now()
+    }
+    setMessages(prev => [...prev, userMessage])
+    setSearchTerm('')
 
     try {
       const response = await fetch('/api/search', {
@@ -38,146 +60,143 @@ export default function Search({ language, className = '' }: SearchProps) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ query: searchTerm }),
+        body: JSON.stringify({ query: userMessage.content }),
       })
 
       const data = await response.json()
-      console.log('Search response:', data) // 디버깅용 로그
 
       if (!response.ok) {
-        throw new Error(data.error || '검색 중 오류가 발생했습니다.')
+        throw new Error(data.error || '오류가 발생했습니다.')
       }
 
-      // API 응답 구조에 맞게 결과 처리
       if (data.results?.[0]) {
-        const result = data.results[0];
-        setResults([{
-          title: translate('searchResult', language),
-          text: result.text || '',
-          sources: result.sources || [],
-          additionalInfo: result.additionalInfo || '',
-          url: result.url
-        }])
-      } else {
-        setResults([])
+        // AI 응답 메시지 추가
+        const assistantMessage: Message = {
+          id: crypto.randomUUID(),
+          role: 'assistant',
+          content: data.results[0].text || '',
+          timestamp: Date.now()
+        }
+        setMessages(prev => [...prev, assistantMessage])
       }
     } catch (err) {
-      console.error('Search error:', err) // 디버깅용 로그
-      setError(err instanceof Error ? err.message : '검색 중 오류가 발생했습니다.')
-      setResults([])
+      console.error('Error:', err)
+      setError(err instanceof Error ? err.message : '오류가 발생했습니다.')
     } finally {
       setIsLoading(false)
     }
   }
 
+  // 메시지 시간 포맷팅
+  const formatTime = (timestamp: number) => {
+    return new Intl.DateTimeFormat('ko-KR', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    }).format(new Date(timestamp))
+  }
+
+  // 채팅 내역 초기화 함수
+  const clearMessages = () => {
+    setMessages([]);
+    setError(null);
+  };
+
   return (
-    <div className={`${results.length > 0 ? 'min-h-[400px] pt-8' : 'min-h-[100px]'} ${className}`}>
-      <form onSubmit={handleSearch} className="relative mb-6">
-        <div className="relative">
+    <div className="flex flex-col h-[400px] max-w-lg mx-auto bg-gray-50 dark:bg-gray-900 rounded-lg shadow-lg">
+      {/* 헤더 영역 */}
+      <div className="flex justify-end items-center px-3 py-1.5 border-b border-gray-200 dark:border-gray-700">
+        <button
+          onClick={clearMessages}
+          className="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 hover:text-[#EA0029] dark:hover:text-[#EA0029] transition-colors duration-75"
+          title={translate('clearChat', language)}
+        >
+          <Trash2 className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* 채팅 메시지 영역 */}
+      <div 
+        ref={chatContainerRef}
+        className="flex-1 overflow-y-auto p-3 space-y-3"
+      >
+        {messages.map((message) => (
+          <div
+            key={message.id}
+            className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+          >
+            <div
+              className={`max-w-[85%] rounded-lg p-2.5 ${
+                message.role === 'user'
+                  ? 'bg-[#EA0029] text-white ml-3'
+                  : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 mr-3'
+              }`}
+            >
+              <div className="flex flex-col">
+                <div className={`whitespace-pre-line text-sm ${
+                  message.role === 'user'
+                    ? 'text-white'
+                    : 'text-gray-800 dark:text-gray-200'
+                }`}>
+                  {message.content}
+                </div>
+                <div className={`text-[10px] mt-1 text-right ${
+                  message.role === 'user'
+                    ? 'text-gray-100'
+                    : 'text-gray-500 dark:text-gray-400'
+                }`}>
+                  {formatTime(message.timestamp)}
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+        {isLoading && (
+          <div className="flex justify-start">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-2.5 border border-gray-200 dark:border-gray-700 mr-3">
+              <div className="flex items-center gap-2">
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-[#EA0029]" />
+                <span className="text-xs text-gray-600 dark:text-gray-300">
+                  {translate('thinking', language)}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+        {error && (
+          <div className="flex justify-center">
+            <div className="bg-red-50 dark:bg-red-900/10 text-red-500 rounded-lg p-2.5 text-xs">
+              {error}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* 입력 영역 */}
+      <div className="p-3 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+        <form onSubmit={handleSearch} className="relative">
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder={translate('searchPlaceholder', language)}
-            className="w-full px-4 py-2 pl-10 pr-20 text-gray-900 placeholder-gray-500 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#EA0029] focus:border-transparent dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 dark:border-gray-700"
+            placeholder={translate('chatInputPlaceholder', language)}
+            className="w-full px-4 py-1.5 pl-9 pr-16 text-sm text-gray-900 placeholder-gray-500 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#EA0029] focus:border-transparent dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:border-gray-600"
           />
-          <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-        </div>
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="absolute right-2 top-1/2 transform -translate-y-1/2 px-4 py-1.5 text-sm font-medium text-white bg-[#EA0029] rounded-md hover:bg-[#C8002B] transition-all duration-200 min-w-[80px] group disabled:opacity-50 disabled:hover:bg-[#EA0029]"
-        >
-          <span className="group-hover:scale-105 transition-transform duration-200">
-            {translate('search', language)}
-          </span>
-        </button>
-      </form>
-
-      <div className="relative min-h-[100px]">
-        {error && (
-          <div className="text-red-500 text-center mb-4 p-4 bg-red-50 dark:bg-red-900/10 rounded-lg">
-            {error}
-          </div>
-        )}
-
-        {hasSearched && !isLoading && results.length === 0 && !error && (
-          <div className="text-center text-gray-500 dark:text-gray-400 mt-4">
-            {translate('noResults', language)}
-          </div>
-        )}
-
-        {isLoading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm z-10 rounded-lg">
-            <div className="flex flex-col items-center gap-3">
-              <Loader2 className="w-8 h-8 animate-spin text-[#EA0029]" />
-              <span className="text-gray-600 dark:text-gray-300 font-medium">
-                {translate('searching', language)}
-              </span>
-            </div>
-          </div>
-        )}
-
-        {results.length > 0 && (
-          <div className="space-y-6">
-            {results.map((result, index) => (
-              <div
-                key={index}
-                className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700"
-              >
-                {result.title && (
-                  <h3 className="text-xl font-semibold mb-4 text-[#05141F] dark:text-white">
-                    {result.title}
-                  </h3>
-                )}
-                <p className="text-gray-600 dark:text-gray-300 whitespace-pre-line text-base leading-relaxed mb-4 break-words">
-                  {result.text}
-                </p>
-                {result.sources && result.sources.length > 0 && (
-                  <div className="mt-6">
-                    <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                      {translate('sources', language)}:
-                    </h4>
-                    <ul className="list-none space-y-1">
-                      {result.sources.map((source, idx) => (
-                        <li key={idx} className="text-sm text-blue-600 dark:text-blue-400">
-                          <a 
-                            href={source} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="hover:underline break-all inline-block max-w-full overflow-hidden text-ellipsis"
-                          >
-                            {new URL(source).hostname}
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                {result.additionalInfo && (
-                  <div className="mt-6">
-                    <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                      {translate('additionalInfo', language)}:
-                    </h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">
-                      {result.additionalInfo}
-                    </p>
-                  </div>
-                )}
-                {result.url && (
-                  <a
-                    href={result.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[#EA0029] hover:text-[#C8002B] text-sm mt-4 inline-block font-medium"
-                  >
-                    {translate('readMore', language)} →
-                  </a>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
+          <SearchIcon className="absolute left-2.5 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <button
+            type="submit"
+            disabled={isLoading || !searchTerm.trim()}
+            className={`absolute right-1.5 top-1/2 transform -translate-y-1/2 px-3 py-1 text-xs font-medium text-white rounded-md transition-all duration-75 min-w-[60px] group disabled:opacity-50 ${
+              searchTerm.trim() && !isLoading
+                ? 'bg-[#EA0029] hover:bg-[#FF1F4B]'
+                : 'bg-gray-400'
+            }`}
+          >
+            <span className="group-hover:scale-105 transition-transform duration-200">
+              {translate('send', language)}
+            </span>
+          </button>
+        </form>
       </div>
     </div>
   )
