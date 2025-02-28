@@ -431,10 +431,10 @@ export const translations: TranslationDictionary = {
     zh: '分享和咨询',
   },
   search: {
-    ko: '검색',
-    en: 'Search',
-    ja: '検索',
-    zh: '搜索'
+    ko: 'ChatGPT',
+    en: 'ChatGPT',
+    ja: 'ChatGPT',
+    zh: 'ChatGPT'
   },
   searchPlaceholder: {
     ko: '검색어를 입력하세요',
@@ -477,6 +477,24 @@ export const translations: TranslationDictionary = {
     en: 'No results found.',
     ja: '検索結果がありません。',
     zh: '没有找到相关结果。'
+  },
+  chatResult: {
+    ko: 'AI 응답',
+    en: 'AI Response',
+    ja: 'AI 応答',
+    zh: 'AI 回答'
+  },
+  thinking: {
+    ko: '생각하는 중...',
+    en: 'Thinking...',
+    ja: '考え中...',
+    zh: '思考中...'
+  },
+  send: {
+    ko: '전송',
+    en: 'Send',
+    ja: '送信',
+    zh: '发送'
   },
 };
 
