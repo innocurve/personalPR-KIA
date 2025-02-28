@@ -5,6 +5,7 @@ import { Message } from './ChatInput'
 import { Volume2, VolumeX, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useAudio } from '@/app/contexts/AudioContext'
+import { usePathname, useSearchParams, useRouter } from 'next/navigation'
 
 // 오디오 캐시를 위한 Map 객체
 const audioCache = new Map<string, { blob: Blob; timestamp: number }>()
@@ -18,6 +19,11 @@ interface ChatMessageProps {
 }
 
 const ChatMessage: React.FC<ChatMessageProps> = ({ message, isDarkMode }) => {
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const prevPathnameRef = useRef<string | null>(null)
+  
   // 로컬 상태
   const [isLoading, setIsLoading] = useState(false)
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null)
@@ -58,75 +64,161 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isDarkMode }) => {
     }
   }, [])
 
+  // 페이지 이동 감지를 위한 useEffect
+  useEffect(() => {
+    const handleRouteChange = () => {
+      console.log('라우트 변경 감지')
+      if (audio && !audio.paused) {
+        cleanupAudio()
+      }
+    }
+
+    // 페이지 변경 감지
+    if (prevPathnameRef.current !== null && prevPathnameRef.current !== pathname) {
+      console.log('페이지 변경 감지: 오디오 정리')
+      handleRouteChange()
+    }
+    prevPathnameRef.current = pathname
+
+    // 브라우저 네비게이션 이벤트
+    window.addEventListener('popstate', handleRouteChange)
+    
+    // 페이지 숨김/표시 이벤트
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && audio && !audio.paused) {
+        cleanupAudio()
+      }
+    })
+
+    return () => {
+      window.removeEventListener('popstate', handleRouteChange)
+    }
+  }, [pathname, searchParams, audio])
+
+  // 동기적인 오디오 정리를 위한 useEffect
+  useEffect(() => {
+    const stopAudioSync = () => {
+      if (audio) {
+        console.log('페이지 닫힘 감지: 즉시 오디오 중지')
+        try {
+          audio.pause()
+          audio.currentTime = 0
+          audio.src = ''
+          setAudio(null)
+        } catch (error) {
+          console.error('동기적 오디오 정리 중 오류:', error)
+        }
+      }
+    }
+
+    window.addEventListener('beforeunload', stopAudioSync)
+    window.addEventListener('pagehide', stopAudioSync)
+    window.addEventListener('unload', stopAudioSync)
+
+    return () => {
+      window.removeEventListener('beforeunload', stopAudioSync)
+      window.removeEventListener('pagehide', stopAudioSync)
+      window.removeEventListener('unload', stopAudioSync)
+    }
+  }, [audio])
+
+  // 링크 클릭 감지를 위한 useEffect
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement
+      const linkElement = target.tagName === 'A' ? target : target.closest('a')
+      
+      if (linkElement && audio && !audio.paused) {
+        console.log('링크 클릭 감지: 오디오 즉시 정리')
+        e.preventDefault()
+        cleanupAudio()
+        // 약간의 지연 후 네비게이션 진행
+        setTimeout(() => {
+          const href = linkElement.getAttribute('href')
+          if (href) {
+            router.push(href)
+          }
+        }, 50)
+      }
+    }
+    
+    // 캡처링 단계에서 이벤트 처리
+    window.addEventListener('click', handleClick, true)
+
+    return () => {
+      window.removeEventListener('click', handleClick, true)
+    }
+  }, [audio, router])
+
+  // 컴포넌트 언마운트 시 오디오 리소스 정리
+  useEffect(() => {
+    return () => {
+      console.log('컴포넌트 언마운트: 오디오 정리')
+      if (audio && !audio.paused) {
+        cleanupAudio()
+      }
+    }
+  }, [audio])
+
   // 오디오 리소스 정리 함수
   const cleanupAudio = () => {
     console.log('오디오 리소스 정리 시작')
     
-    // 타임아웃 정리
-    if (timeoutIdRef.current) {
-      clearTimeout(timeoutIdRef.current)
-      timeoutIdRef.current = null
+    // 즉시 실행되어야 하는 정리 작업
+    const cleanup = () => {
+      if (audio) {
+        try {
+          // 1. 먼저 재생 중지
+          audio.pause()
+          
+          // 2. 이벤트 리스너 제거
+          audio.onended = null
+          audio.oncanplaythrough = null
+          audio.onloadeddata = null
+          audio.onloadedmetadata = null
+          audio.onerror = null
+          
+          // 3. 오디오 리소스 해제
+          audio.src = ''
+          audio.load()
+          
+          // 4. 상태 초기화
+          setAudio(null)
+          if (audioUrl) {
+            URL.revokeObjectURL(audioUrl)
+            setAudioUrl(null)
+            setAudioBlob(null)
+          }
+          
+          // 5. 전역 상태 초기화
+          if (isThisMessagePlaying) {
+            setPlayingMessageId(null)
+            setIsProcessing(false)
+          }
+          setIsLoading(false)
+          
+          // 6. 토스트 정리
+          if (toastIdRef.current) {
+            toast.dismiss(toastIdRef.current)
+            toastIdRef.current = null
+          }
+          
+          // 7. 타임아웃 정리
+          if (timeoutIdRef.current) {
+            clearTimeout(timeoutIdRef.current)
+            timeoutIdRef.current = null
+          }
+        } catch (error) {
+          console.error('오디오 정리 중 오류:', error)
+        }
+      }
     }
     
-    // 토스트 정리
-    if (toastIdRef.current) {
-      toast.dismiss(toastIdRef.current)
-      toastIdRef.current = null
-    }
-    
-    // 오디오 객체 정리
-    if (audio) {
-      console.log('오디오 객체 정리')
-      audio.pause()
-      audio.onended = null
-      audio.oncanplaythrough = null
-      audio.onloadeddata = null
-      audio.onloadedmetadata = null
-      audio.onerror = null
-    }
-    
-    // URL 정리
-    if (audioUrl) {
-      console.log('오디오 URL 정리:', audioUrl)
-      URL.revokeObjectURL(audioUrl)
-      setAudioUrl(null)
-    }
-    
-    // 현재 메시지가 재생 중이었다면 전역 상태 초기화
-    if (isThisMessagePlaying) {
-      console.log('재생 중인 메시지 상태 초기화')
-      setPlayingMessageId(null)
-      setIsProcessing(false)
-    }
+    // 즉시 실행
+    cleanup()
     
     console.log('오디오 리소스 정리 완료')
   }
-
-  // 페이지 이동, 새로고침 시 음성 중지
-  useEffect(() => {
-    const stopAudio = () => {
-      cleanupAudio()
-    }
-
-    // 이벤트 리스너 등록
-    window.addEventListener('popstate', stopAudio)
-    window.addEventListener('beforeunload', stopAudio)
-    
-    const handleClick = (e: MouseEvent) => {
-      const target = e.target as HTMLElement
-      if (target.tagName === 'A' || target.closest('a')) {
-        stopAudio()
-      }
-    }
-    window.addEventListener('click', handleClick)
-
-    return () => {
-      // 이벤트 리스너 제거
-      window.removeEventListener('popstate', stopAudio)
-      window.removeEventListener('beforeunload', stopAudio)
-      window.removeEventListener('click', handleClick)
-    }
-  }, [])
 
   // 캐시에서 오디오 가져오기
   const getAudioFromCache = (text: string) => {
@@ -579,6 +671,3 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isDarkMode }) => {
 }
 
 export default ChatMessage
-
-
-
