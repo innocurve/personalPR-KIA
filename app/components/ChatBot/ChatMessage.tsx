@@ -6,6 +6,7 @@ import { Volume2, VolumeX, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useAudio } from '@/app/contexts/AudioContext'
 import { usePathname, useSearchParams, useRouter } from 'next/navigation'
+import Image from 'next/image'
 
 // 오디오 캐시를 위한 Map 객체
 const audioCache = new Map<string, { blob: Blob; timestamp: number }>()
@@ -25,10 +26,14 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isDarkMode }) => {
   const prevPathnameRef = useRef<string | null>(null)
   
   // 로컬 상태
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(message.role === 'assistant' && !message.content)
+  const [displayContent, setDisplayContent] = useState(message.role === 'user' ? message.content : '')
+  const [currentIndex, setCurrentIndex] = useState(0)
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null)
   const [audioUrl, setAudioUrl] = useState<string | null>(null)
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null)
+  const [dots, setDots] = useState('')
+  const dotsIntervalRef = useRef<NodeJS.Timeout>()
   
   // 전역 오디오 상태
   const { 
@@ -635,36 +640,67 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isDarkMode }) => {
   
   const buttonState = getButtonState()
 
+  useEffect(() => {
+    if (message.role === 'assistant' && message.content) {
+      setIsLoading(false)
+      if (currentIndex < message.content.length) {
+        const timer = setInterval(() => {
+          setDisplayContent(prev => prev + message.content[currentIndex])
+          setCurrentIndex(prev => prev + 1)
+        }, 20)
+        return () => clearInterval(timer)
+      }
+    }
+  }, [message.content, currentIndex])
+
+  // 로딩 애니메이션 (점 3개)
+  useEffect(() => {
+    if (isLoading) {
+      dotsIntervalRef.current = setInterval(() => {
+        setDots(prev => {
+          if (prev === '') return '.'
+          if (prev === '.') return '..'
+          if (prev === '..') return '...'
+          return ''
+        })
+      }, 500)
+      return () => {
+        if (dotsIntervalRef.current) {
+          clearInterval(dotsIntervalRef.current)
+        }
+      }
+    }
+  }, [isLoading])
+
   return (
-    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
-      <div
-        className={`max-w-[80%] rounded-lg px-4 py-2 ${
-          isUser
-            ? 'bg-red-500 text-white'
-            : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
-        }`}
-      >
-        <div className="flex items-start gap-2">
-          <p className="whitespace-pre-wrap break-words">{message.content}</p>
-          {message.role === 'assistant' && (
-            <button
-              onClick={playTTS}
-              disabled={buttonState.disabled}
-              className={`ml-2 p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 ${
-                buttonState.disabled 
-                  ? 'cursor-not-allowed opacity-50' 
-                  : ''
-              } ${
-                isLoading && isThisMessagePlaying
-                  ? 'cursor-not-allowed opacity-50 pointer-events-none'
-                  : ''
-              }`}
-              title={buttonState.tooltip}
-            >
-              {buttonState.icon}
-            </button>
-          )}
+    <div className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} items-start gap-2`}>
+      {message.role === 'assistant' && (
+        <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 bg-[#EA0029]">
+          <Image
+            src="/profile.png"
+            alt="Assistant"
+            width={32}
+            height={32}
+            className="w-full h-full object-cover"
+          />
         </div>
+      )}
+      <div className={`max-w-[80%] rounded-lg px-4 py-2 ${
+        message.role === 'user'
+          ? 'bg-[#EA0029] text-white'
+          : isDarkMode
+          ? 'bg-gray-800 text-white'
+          : 'bg-gray-100 text-gray-900'
+      }`}>
+        {message.role === 'assistant' && isLoading ? (
+          <div className="flex items-center gap-1">
+            <span className="animate-bounce delay-0">.</span>
+            <span className="animate-bounce delay-100">.</span>
+            <span className="animate-bounce delay-200">.</span>
+          </div>
+        ) : (
+          <p className="whitespace-pre-wrap break-words">{displayContent}</p>
+        )}
       </div>
     </div>
   )
