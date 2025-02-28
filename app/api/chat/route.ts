@@ -72,11 +72,36 @@ interface ChatHistory {
 // 키워드 기반 PDF 청크 검색 함수
 async function searchRelevantChunks(question: string, fileName?: string): Promise<PdfContext[]> {
   const ownerId = process.env.NEXT_PUBLIC_OWNER_ID;
-  const keywords = question
-    .split(/[\s,.]+/)
-    .filter(word => word.length > 1 && !stopWords.has(word));
+  
+  // 차량 가격 관련 키워드 추출
+  const priceKeywords = ['가격', '금액', '원', '만원'];
+  const modelNames = [
+    '레이', 'ray', 'rayEV', '레이EV', '케이3', 'k3', '케이5', 'k5', '케이8', 'k8', '케이9', 'k9',
+    '카니발', 'carnival', '스포티지', 'sportage', '쏘렌토', 'sorento',
+    '모하비', 'mohave', '니로', 'niro', 'ev6', '이브이6', 'ev9', '이브이9',
+    '봉고', 'bongo', '모닝', 'morning', '셀토스', 'seltos'
+  ];
 
-  if (keywords.length === 0) return [];
+  // 질문에서 차량 모델명 추출
+  const modelKeywords = modelNames.filter(model => 
+    question.toLowerCase().includes(model.toLowerCase())
+  );
+
+  // 가격 관련 질문인지 확인
+  const isPriceQuery = priceKeywords.some(keyword => 
+    question.includes(keyword)
+  );
+
+  // 검색 키워드 구성
+  const searchKeywords = Array.from(new Set([
+    ...modelKeywords,
+    ...(isPriceQuery ? priceKeywords : []),
+    ...question
+      .split(/[\s,.]+/)
+      .filter(word => word.length > 1 && !stopWords.has(word))
+  ]));
+
+  if (searchKeywords.length === 0) return [];
 
   try {
     let query = supabase
@@ -90,9 +115,11 @@ async function searchRelevantChunks(question: string, fileName?: string): Promis
     }
 
     // 키워드 기반 검색 조건 추가
-    query = query.or(
-      keywords.map(word => `content.ilike.%${word}%,keywords.cs.{${word}}`).join(',')
-    );
+    const searchConditions = searchKeywords.map(word => 
+      `content.ilike.%${word}%`
+    ).join(',');
+
+    query = query.or(searchConditions);
 
     const { data: chunks, error } = await query;
 
@@ -103,15 +130,34 @@ async function searchRelevantChunks(question: string, fileName?: string): Promis
       let score = 0;
       const lowerContent = chunk.content.toLowerCase();
       
-      keywords.forEach(keyword => {
-        const keywordLower = keyword.toLowerCase();
-        // 내용에 키워드가 포함된 경우
-        if (lowerContent.includes(keywordLower)) {
-          score += 2;
+      // 모델명 매칭 점수 (가장 높은 가중치)
+      modelKeywords.forEach(model => {
+        if (lowerContent.includes(model.toLowerCase())) {
+          score += 10;
         }
-        // 키워드 메타데이터에 포함된 경우
-        if (chunk.keywords?.some((k: string) => k.toLowerCase() === keywordLower)) {
+      });
+
+      // 가격 정보 매칭 점수
+      if (isPriceQuery) {
+        priceKeywords.forEach(keyword => {
+          if (lowerContent.includes(keyword)) {
+            score += 5;
+          }
+        });
+        
+        // 숫자와 '만원' 또는 '원'이 함께 있는 경우 추가 점수
+        if (/\d+[\s]*(만원|원)/.test(lowerContent)) {
+          score += 3;
+        }
+      }
+
+      // 일반 키워드 매칭 점수
+      searchKeywords.forEach(keyword => {
+        if (lowerContent.includes(keyword.toLowerCase())) {
           score += 1;
+        }
+        if (chunk.keywords?.some((k: string) => k.toLowerCase() === keyword.toLowerCase())) {
+          score += 0.5;
         }
       });
 
@@ -123,10 +169,10 @@ async function searchRelevantChunks(question: string, fileName?: string): Promis
       };
     });
 
-    // 상위 3개 청크 반환
+    // 상위 5개 청크 반환 (가격 정보 검색 시 더 많은 컨텍스트 제공)
     return scoredChunks
       .sort((a, b) => b.score - a.score)
-      .slice(0, 3)
+      .slice(0, isPriceQuery ? 5 : 3)
       .map(({ fileName, content, pageNumber }) => ({
         fileName,
         content,
@@ -340,16 +386,11 @@ export async function POST(request: Request) {
 
 가격 답변 규칙:
 1. 기본 가격 안내:
-   - 차량의 기본 가격만 안내 (세제 혜택 적용 전 가격)
-   - 트림별 가격은 세제 혜택 적용 전 가격으로 안내
-
-2. 세제 혜택 관련:
-   - 세제 혜택이나 구매 보조금 정보는 사용자가 명시적으로 물어볼 때만 안내
-   - "세제 혜택 후 가격", "할인 후 가격", "최종 가격" 등을 물어볼 때만 세제 혜택 정보 제공
-   - 예시 질문:
-     * "세제 혜택 얼마에요?"
-     * "할인 받으면 얼마에요?"
-     * "최종 구매 가격이 어떻게 되나요?"
+   - PDF 문서에서 찾은 정확한 가격 정보만 제공
+   - 가격 정보가 여러 개인 경우, 모든 트림의 가격을 안내
+   - 가격 정보를 찾지 못한 경우 "해당 모델의 가격 정보를 찾을 수 없습니다"라고 답변
+   - 가격은 숫자와 '만원' 단위로 표시 (예: "2,775만원")
+   - 트림별 가격 안내 시 트림명과 함께 제시
 
 답변 스타일:
 1. PDF 내용 관련 질문:
