@@ -308,7 +308,7 @@ export async function POST(request: Request) {
 차량 모델명 인식 규칙:
 1. 영문/한글 변환 규칙:
    - "ray" = "레이"
-   - "EV" = "이브이" = "EV"
+   - "rayEV" = "레이 EV"
    - "K3" = "케이3"
    - "K5" = "케이5"
    - "K8" = "케이8"
