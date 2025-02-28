@@ -249,14 +249,19 @@ export default function ChatPage() {
             <span className="text-lg font-medium tracking-tight text-[#05141F]">{translate('name', language)}{translate('cloneTitle', language)}</span>
           </div>
           <div className="flex items-center gap-2">
-            <Link
-              href="/voice-chat"
+            <button
+              onClick={() => fileInputRef.current?.click()}
               className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 hover:text-[#EA0029] dark:hover:text-[#EA0029] transition-colors duration-75"
-              aria-label="Voice Chat"
-              title={translate('voiceChat', language)}
+              aria-label="Upload PDF"
+              title="PDF 파일 업로드"
             >
-              <WaveformIcon className="w-5 h-5" />
-            </Link>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="12" y1="18" x2="12" y2="12"/>
+                <line x1="9" y1="15" x2="15" y2="15"/>
+              </svg>
+            </button>
             <button
               onClick={clearMessages}
               className={`p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 hover:text-[#EA0029] dark:hover:text-[#EA0029] transition-colors duration-75`}
@@ -265,6 +270,14 @@ export default function ChatPage() {
             >
               <Trash2 className="w-5 h-5" />
             </button>
+            <Link
+              href="/voice-chat"
+              className="hidden p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 hover:text-[#EA0029] dark:hover:text-[#EA0029] transition-colors duration-75"
+              aria-label="Voice Chat"
+              title={translate('voiceChat', language)}
+            >
+              <WaveformIcon className="w-5 h-5" />
+            </Link>
             <input
               type="file"
               ref={fileInputRef}

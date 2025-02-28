@@ -41,10 +41,10 @@ export const translations: TranslationDictionary = {
     zh: '价值观',
   },
   valuesDescription: {
-    ko: '우리는\n격동과 변혁의 시대\n한가운데에 서 있습니다.',
-    en: 'We stand\nin the midst of an era\nof turbulence and transformation.',
-    ja: '私たちは\n激動と変革の時代の\n真っ只中にいます。',
-    zh: '我们正处于\n变革与动荡时代的\n中心。',
+    ko: '𝐒𝐮𝐬𝐭𝐚𝐢𝐧𝐚𝐛𝐢𝐥𝐢𝐭𝐲\n\n기아는 \'지속가능한 모빌리티 솔루션 프로바이더\'로서\n혁신과 전환을 통해 더 나은 미래를 만들어갑니다.',
+    en: '𝐒𝐮𝐬𝐭𝐚𝐢𝐧𝐚𝐛𝐢𝐥𝐢𝐭𝐲\n\nAs a sustainable mobility solutions provider,\nwe create a better future through innovation.',
+    ja: '𝐒𝐮𝐬𝐭𝐚𝐢𝐧𝐚𝐛𝐢𝐥𝐢𝐭𝐲\n\n持続可能なモビリティソリューションプロバイダーとして、\n革新を通じてより良い未来を創造します。',
+    zh: '𝐒𝐮𝐬𝐭𝐚𝐢𝐧𝐚𝐛𝐢𝐥𝐢𝐭𝐲\n\n作为可持续移动解决方案提供商，\n我们通过创新创造更美好的未来。'
   },
   history: {
     ko: '연혁',

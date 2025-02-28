@@ -8,6 +8,24 @@ const openai = new OpenAI({
 });
 
 // 타입 정의
+interface Message {
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+}
+
+interface PdfContext {
+  fileName: string;
+  content: string;
+  pageNumber: number;
+}
+
+// PDF 관련 컨텍스트 관리를 위한 인터페이스
+interface ConversationContext {
+  pdfContent?: string;
+  fileName?: string;
+  recentPdfChunks: PdfContext[];
+}
+
 interface ScoredChunk {
   content: string;
   score: number;
@@ -52,51 +70,96 @@ interface ChatHistory {
 }
 
 // 키워드 기반 PDF 청크 검색 함수
-async function searchRelevantChunks(question: string): Promise<string> {
+async function searchRelevantChunks(question: string, fileName?: string): Promise<PdfContext[]> {
   const ownerId = process.env.NEXT_PUBLIC_OWNER_ID;
   const keywords = question
     .split(/[\s,.]+/)
     .filter(word => word.length > 1 && !stopWords.has(word));
 
-  if (keywords.length === 0) return '';
+  if (keywords.length === 0) return [];
 
   try {
-    const { data: chunks, error } = await supabase
+    let query = supabase
       .from('pdf_chunks')
       .select('*')
-      .or(keywords.map(word => 
-        `content.ilike.%${word}%,keywords.cs.{${word}}`
-      ).join(','));
+      .eq('owner_id', ownerId);
+
+    // 특정 파일 검색 시 파일명 필터 추가
+    if (fileName) {
+      query = query.eq('file_name', fileName);
+    }
+
+    // 키워드 기반 검색 조건 추가
+    query = query.or(
+      keywords.map(word => `content.ilike.%${word}%,keywords.cs.{${word}}`).join(',')
+    );
+
+    const { data: chunks, error } = await query;
 
     if (error) throw error;
 
-    // 점수 계산 로직
-    const scoredChunks = (chunks || []).map((chunk: PdfChunk) => {
+    // 점수 계산 및 정렬
+    const scoredChunks = (chunks || []).map(chunk => {
       let score = 0;
       const lowerContent = chunk.content.toLowerCase();
       
       keywords.forEach(keyword => {
         const keywordLower = keyword.toLowerCase();
+        // 내용에 키워드가 포함된 경우
         if (lowerContent.includes(keywordLower)) {
           score += 2;
         }
-        if (chunk.keywords?.some(k => k.toLowerCase() === keywordLower)) {
+        // 키워드 메타데이터에 포함된 경우
+        if (chunk.keywords?.some((k: string) => k.toLowerCase() === keywordLower)) {
           score += 1;
         }
       });
 
-      return { content: chunk.content, score };
+      return {
+        fileName: chunk.file_name,
+        content: chunk.content,
+        pageNumber: chunk.page_number,
+        score
+      };
     });
 
-    const topChunks = scoredChunks
+    // 상위 3개 청크 반환
+    return scoredChunks
       .sort((a, b) => b.score - a.score)
-      .slice(0, 2);
-
-    return topChunks.map(chunk => chunk.content).join('\n\n');
+      .slice(0, 3)
+      .map(({ fileName, content, pageNumber }) => ({
+        fileName,
+        content,
+        pageNumber
+      }));
   } catch (error) {
     console.error('PDF 검색 오류:', error);
-    return '';
+    return [];
   }
+}
+
+// 대화 컨텍스트 관리 함수
+function updateConversationContext(
+  context: ConversationContext,
+  newChunks: PdfContext[],
+  maxChunks: number = 5
+): ConversationContext {
+  return {
+    ...context,
+    recentPdfChunks: [...newChunks, ...context.recentPdfChunks]
+      .slice(0, maxChunks) // 최근 5개 청크만 유지
+  };
+}
+
+// PDF 컨텍스트를 시스템 프롬프트에 통합하는 함수
+function integrateContextToPrompt(basePrompt: string, context: ConversationContext): string {
+  if (context.recentPdfChunks.length === 0) return basePrompt;
+
+  const pdfContext = context.recentPdfChunks
+    .map(chunk => chunk.content)
+    .join('\n\n');
+
+  return `${basePrompt}\n\n# PDF 문서 컨텍스트 (참고 자료):\n${pdfContext}\n\n위 내용을 참고하여 자연스럽게 답변해주세요.`;
 }
 
 // 이름에서 다른 사람 언급 추출 함수
@@ -217,125 +280,134 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const { messages } = await request.json();
-  const lastUserMessage = messages.findLast((msg: any) => msg.role === 'user')?.content || '';
+  const { messages, pdfContent } = await request.json();
+  const lastUserMessage = messages.findLast((msg: Message) => msg.role === 'user')?.content || '';
   const ownerId = process.env.NEXT_PUBLIC_OWNER_ID;
 
   try {
-    // 메시지에서 언급된 사람 찾기
-    const mentionedPerson = await extractMentionedPerson(lastUserMessage);
-    let mentionedPersonInfo = null;
-    
-    if (mentionedPerson) {
-      mentionedPersonInfo = await getPersonInfo(mentionedPerson);
+    // 대화 컨텍스트 초기화
+    let conversationContext: ConversationContext = {
+      pdfContent: pdfContent,
+      recentPdfChunks: []
+    };
+
+    // PDF 관련 청크 검색
+    if (lastUserMessage) {
+      const relevantChunks = await searchRelevantChunks(lastUserMessage);
+      if (relevantChunks.length > 0) {
+        conversationContext = updateConversationContext(conversationContext, relevantChunks);
+      }
     }
 
-    // owner_id로 필터링하여 해당 소유자의 데이터만 가져오기
-    const [{ data: projects }, { data: experiences }, { data: owner }] = await Promise.all([
-      supabase
-        .from('projects')
-        .select('*')
-        .eq('owner_id', ownerId),
-      supabase
-        .from('experiences')
-        .select('*')
-        .eq('owner_id', ownerId),
-      supabase
-        .from('owners')
-        .select('*')
-        .eq('owner_id', ownerId)
-        .single()
-    ]);
-
-    if (!owner) {
-      throw new Error('Owner not found');
-    }
-
-    const projectInfo = (projects || [])
-      .map((p: Project) => `- ${p.title}: ${p.description} (기술 스택: ${p.tech_stack.join(', ')})`)
-      .join('\n');
-
-    const experienceInfo = (experiences || [])
-      .map((e: Experience) => `- ${e.company}의 ${e.position} (${e.period})\n  ${e.description}`)
-      .join('\n');
-
-    const ownerInfo = owner
-      ? `이름: ${owner.name}\n나이: ${owner.age}\n취미: ${owner.hobbies.join(', ')}\n가치관: ${owner.values}\n나라: ${owner.country}\n생년월일: ${owner.birth}\nowner_id: ${owner.owner_id}`
-      : '';
-
-    // 시스템 프롬프트 작성
+    // 기본 시스템 프롬프트 구성
     let systemPrompt = `당신은 정이노의 AI 클론입니다. 아래 정보를 바탕으로 1인칭으로 자연스럽게 대화하세요.
-    현재 시각은 ${new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })} 입니다.
-  
-성격 및 특징:
-- 비전 있는 리더 스타일로, 목표 지향적이며 새로운 것을 개척하는 것을 좋아합니다.
-- 주어진 길을 따르기보다는 스스로 길을 만들어가는 성향입니다.
-- 논리적이면서도 실행력이 뛰어나, 생각을 빠르게 실천으로 옮기는 특징이 있습니다.
-- 사회적 가치를 중요시하며, 특히 AI와 청년들을 연결해 미래를 만들어가는 데 큰 관심이 있습니다.
-- 주변 사람들에게 긍정적인 영향을 주며 동기부여를 잘하는 편입니다.
+현재 시각은 ${new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })} 입니다.
 
-소속 회사 정보:
-회사명: 이노커브(INNOCURVE)
-대표: 정민기
-주요 사업: AI 기반의 고객 맞춤형 컨설팅
-특징: 혁신적인 AI 솔루션을 통한 맞춤형 비즈니스 컨설팅 제공
+당신은 기아자동차의 친절한 상담원이며 기아자동차의 기본적인 지식을 알고 있습니다.
 
-기본 정보:
-${ownerInfo}
+차량 모델명 인식 규칙:
+1. 영문/한글 변환 규칙:
+   - "ray" = "레이"
+   - "EV" = "이브이" = "EV"
+   - "K3" = "케이3"
+   - "K5" = "케이5"
+   - "K8" = "케이8"
+   - "K9" = "케이9"
+   - "Carnival" = "카니발"
+   - "Sportage" = "스포티지"
+   - "Sorento" = "쏘렌토"
+   - "Mohave" = "모하비"
+   - "Niro" = "니로"
+   - "EV6" = "이브이6"
+   - "EV9" = "이브이9"
+   - "Bongo" = "봉고"
+   - "Morning" = "모닝"
+   - "Seltos" = "셀토스"
 
-경력:
-${experienceInfo}
+2. 조합 규칙:
+   - 영문과 한글 표기는 동일한 의미로 처리
+   - 띄어쓰기 유무는 무시
+   - 대소문자 구분 없이 처리
+   - 예시: 
+     * "rayEV" = "레이EV" = "레이 이브이"
+     * "K3 GT" = "케이3 GT" = "K3지티"
+     * "EV6 GT" = "이브이6 GT" = "EV6 지티"
 
-프로젝트:
-${projectInfo}
+3. 검색 처리:
+   - 사용자가 영문으로 입력하더라도 한글 표기로 된 내용을 찾아서 답변
+   - 한글과 영문이 혼용된 경우에도 동일한 차량으로 인식
+   - 모델명이 포함된 다양한 표현 방식을 모두 인식하여 관련 정보 제공
 
-답변 시 주의사항:
-- 정민기님을 언급할 때는 "정민기 대표님"으로 호칭
-- 다른 분들을 언급할 때는 이름 뒤에 "님"을 붙여서 호칭 (예: "이재권님", "김철수님")
-- 항상 정중하고 예의 바른 어투 사용
-- 다른 사람에 대해 질문받았을 때는 현재 직책/역할만 간단히 답변
-- 예시 답변: "이재권님은 저희 회사의 CTO이십니다."`;
+가격 답변 규칙:
+1. 기본 가격 안내:
+   - 차량의 기본 가격만 안내 (세제 혜택 적용 전 가격)
+   - 트림별 가격은 세제 혜택 적용 전 가격으로 안내
 
-    // 다른 사람의 정보가 있다면 시스템 프롬프트에 추가 (비공개 정보로)
-    if (mentionedPersonInfo) {
-      systemPrompt += `\n\n# 비공개 참조 정보 (추가 질문이 있을 때만 사용)
-${mentionedPerson}${mentionedPersonInfo.honorific}의 정보:
-기본 정보:
-이름: ${mentionedPersonInfo.owner.name}${mentionedPersonInfo.honorific}
-나이: ${mentionedPersonInfo.owner.age}
-취미: ${mentionedPersonInfo.owner.hobbies.join(', ')}
-가치관: ${mentionedPersonInfo.owner.values}
-${mentionedPersonInfo.owner.country ? `나라: ${mentionedPersonInfo.owner.country}` : ''}
-${mentionedPersonInfo.owner.birth ? `생년월일: ${mentionedPersonInfo.owner.birth}` : ''}
+2. 세제 혜택 관련:
+   - 세제 혜택이나 구매 보조금 정보는 사용자가 명시적으로 물어볼 때만 안내
+   - "세제 혜택 후 가격", "할인 후 가격", "최종 가격" 등을 물어볼 때만 세제 혜택 정보 제공
+   - 예시 질문:
+     * "세제 혜택 얼마에요?"
+     * "할인 받으면 얼마에요?"
+     * "최종 구매 가격이 어떻게 되나요?"
 
-경력:
-${mentionedPersonInfo.experienceInfo}
+답변 스타일:
+1. PDF 내용 관련 질문:
+   - PDF 내용을 기반으로 정확하게 답변
+   - 불확실한 내용은 "PDF에서 해당 내용을 찾을 수 없습니다"라고 답변
+2. 일반 대화:
+   - 친근하고 전문적인 어조 유지
+   - 필요시 개인 경험이나 지식 공유
+   - 항상 정중하고 예의 바른 어투 사용
 
-프로젝트:
-${mentionedPersonInfo.projectInfo}`;
-    }
+주의사항:
+- PDF 내용과 관련된 질문에는 반드시 문서 내용을 기반으로 답변
+- 불확실한 내용은 추측하지 않고 모른다고 답변
+- 민감한 정보는 공유하지 않음
+- 페이지 번호나 문서 출처를 언급하지 않음
+`;
 
+    // PDF 컨텍스트가 있는 경우 시스템 프롬프트에 통합
+    systemPrompt = integrateContextToPrompt(systemPrompt, conversationContext);
+
+    // OpenAI API 호출
     const response = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
         { role: 'system', content: systemPrompt },
-        ...messages,
+        ...messages
       ],
+      temperature: 0.7,
+      max_tokens: 1000
     });
 
     // 채팅 내역 저장
     await supabase.from('chat_history').insert({
       role: 'user',
       content: lastUserMessage,
-      owner_id: ownerId
+      owner_id: ownerId,
+      pdf_context: conversationContext.recentPdfChunks.length > 0 ? {
+        file_name: conversationContext.fileName,
+        chunks: conversationContext.recentPdfChunks
+      } : null
     });
 
     return new Response(
-      JSON.stringify({ response: response.choices[0].message.content }),
-      { headers: { 'Content-Type': 'application/json' } },
+      JSON.stringify({ 
+        response: response.choices[0].message.content,
+        pdfContext: conversationContext.recentPdfChunks.length > 0 ? {
+          fileName: conversationContext.fileName,
+          pages: conversationContext.recentPdfChunks.map(chunk => chunk.pageNumber)
+        } : null
+      }),
+      { headers: { 'Content-Type': 'application/json' } }
     );
+
   } catch (error) {
     console.error('Error in chat route:', error);
-    return new Response(JSON.stringify({ error: 'An error occurred' }), { status: 500 });
+    return new Response(
+      JSON.stringify({ error: 'An error occurred during processing' }), 
+      { status: 500 }
+    );
   }
 }

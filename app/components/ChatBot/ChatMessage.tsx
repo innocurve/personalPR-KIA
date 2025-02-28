@@ -548,7 +548,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isDarkMode }) => {
       <div
         className={`max-w-[80%] rounded-lg px-4 py-2 ${
           isUser
-            ? 'bg-blue-500 text-white'
+            ? 'bg-red-500 text-white'
             : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
         }`}
       >

@@ -327,77 +327,39 @@ const ChatInput: React.FC<ChatInputProps> = ({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="relative">
-      <div
-        className={`flex items-center rounded-lg border p-2 ${
-          isDarkMode
-            ? 'bg-gray-800 border-gray-700 text-white'
-            : 'bg-white border-gray-300 text-gray-900'
-        }`}
-      >
+    <form onSubmit={handleSubmit} className="flex items-center gap-2">
+      <div className="flex-1 relative">
         <input
           type="text"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           placeholder={getPlaceholder()}
-          className={`flex-grow px-3 py-2 outline-none bg-transparent ${
-            isDarkMode ? 'text-white placeholder-gray-400' : 'text-gray-900 placeholder-gray-500'
-          }`}
-          disabled={isRecording || isLocalProcessing}
+          className={`w-full p-3 rounded-lg border ${
+            isDarkMode
+              ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400'
+              : 'bg-white border-gray-200 text-gray-900 placeholder-gray-500'
+          } focus:outline-none focus:ring-2 focus:ring-[#EA0029] focus:border-transparent`}
+          disabled={isProcessing || isLocalProcessing}
         />
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={isRecording ? stopRecording : startRecording}
-            disabled={isLocalProcessing}
-            className={`p-2 rounded-full transition-colors duration-75 ${
-              isRecording 
-                ? 'bg-red-100 dark:bg-red-900 text-[#EA0029] ring-2 ring-[#EA0029]' 
-                : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 hover:text-[#EA0029] dark:hover:text-[#EA0029]'
-            } ${
-              isLocalProcessing ? 'cursor-not-allowed opacity-50' : ''
-            }`}
-            title={
-              isRecording 
-                ? translate('stopRecording', language) || '녹음 중지' 
-                : translate('voiceInput', language) || '음성으로 입력'
-            }
-          >
-            {isLocalProcessing ? (
-              <div className="relative">
-                <Loader2 className="w-5 h-5 animate-spin" />
-                <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-xs whitespace-nowrap">
-                  변환 중...
-                </span>
-              </div>
-            ) : isRecording ? (
-              <div className="relative">
-                <MicOff className="w-5 h-5 text-[#EA0029]" />
-                <div
-                  className="absolute -bottom-1 -right-1 w-2 h-2 rounded-full bg-[#EA0029] animate-pulse"
-                  style={{
-                    transform: `scale(${1 + audioLevel / 100})`,
-                    opacity: 0.8,
-                  }}
-                />
-              </div>
-            ) : (
-              <Mic className="w-5 h-5" />
-            )}
-          </button>
-          <button
-            type="submit"
-            disabled={!message.trim() || isLocalProcessing}
-            className={`p-2 rounded-full transition-colors duration-75 ${
-              message.trim() && !isLocalProcessing
-                ? 'bg-[#EA0029] text-white hover:bg-[#FF1F4B]'
-                : 'bg-gray-200 dark:bg-gray-700 text-gray-400'
-            }`}
-          >
-            <Send className="w-5 h-5" />
-          </button>
-        </div>
+        {(isProcessing || isLocalProcessing) && (
+          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+            <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
+          </div>
+        )}
       </div>
+      <button
+        type="submit"
+        disabled={!message.trim() || isProcessing || isLocalProcessing}
+        className={`p-3 rounded-lg ${
+          message.trim() && !isProcessing && !isLocalProcessing
+            ? 'bg-[#EA0029] text-white hover:bg-[#C8001E]'
+            : isDarkMode
+            ? 'bg-gray-800 text-gray-400'
+            : 'bg-gray-100 text-gray-400'
+        } transition-colors duration-75 disabled:cursor-not-allowed`}
+      >
+        <Send className="w-5 h-5" />
+      </button>
     </form>
   )
 }

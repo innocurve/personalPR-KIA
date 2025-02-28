@@ -41,7 +41,7 @@ export default function ShareButton({ language }: ShareButtonProps) {
 
   // 링크 복사 기능
   const copyLink = async () => {
-    const url = window.location.href
+    const url = "https://www.kia.com/kr/vehicles/catalog-price"
     try {
       await navigator.clipboard.writeText(url)
       setShowToast(true)
@@ -56,8 +56,8 @@ export default function ShareButton({ language }: ShareButtonProps) {
   const nativeShare = async () => {
     try {
       await navigator.share({
-        title: 'InnoCard',
-        url: window.location.href
+        title: 'KIA',
+        url: "https://www.kia.com/kr/vehicles/catalog-price"
       })
       setShowMenu(false)
     } catch (err) {
