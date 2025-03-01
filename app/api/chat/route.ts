@@ -69,42 +69,95 @@ interface ChatHistory {
   created_at?: string;
 }
 
+interface FileData {
+  file_name: string;
+}
+
+// 차량 모델명 매핑
+const modelNameMapping: { [key: string]: string[] } = {
+  'ray': ['레이', 'ray'],
+  'rayev': ['레이ev', 'rayev', '레이이브이'],
+  'k5': ['케이5', 'k5'],
+  'k8': ['케이8', 'k8'],
+  'k9': ['케이9', 'k9'],
+  'carnival': ['카니발', 'carnival'],
+  'sportage': ['스포티지', 'sportage'],
+  'sorento': ['쏘렌토', 'sorento'],
+  'mohave': ['모하비', 'mohave'],
+  'niro': ['니로', 'niro'],
+  'ev6': ['이브이6', 'ev6'],
+  'ev9': ['이브이9', 'ev9'],
+  'bongo': ['봉고', 'bongo'],
+  'morning': ['모닝', 'morning'],
+  'seltos': ['셀토스', 'seltos'],
+  'tasman': ['티스만', 'tasman']
+};
+
 // 키워드 기반 PDF 청크 검색 함수
 async function searchRelevantChunks(question: string, fileName?: string): Promise<PdfContext[]> {
   const ownerId = process.env.NEXT_PUBLIC_OWNER_ID;
   
   // 차량 가격 관련 키워드 추출
   const priceKeywords = ['가격', '금액', '원', '만원', '얼마', '얼마야', '얼마예요', '얼마에요'];
-  const modelNames = [
-    '레이', 'ray', 'rayEV', '레이EV', '케이3', 'k3', '케이5', 'k5', '케이8', 'k8', '케이9', 'k9',
-    '카니발', 'carnival', '스포티지', 'sportage', '쏘렌토', 'sorento',
-    '모하비', 'mohave', '니로', 'niro', 'ev6', '이브이6', 'ev9', '이브이9',
-    '봉고', 'bongo', '모닝', 'morning', '셀토스', 'seltos'
-  ];
-
-  // 질문에서 차량 모델명 추출 (조사 처리 추가)
-  const cleanQuestion = question.toLowerCase().replace(/[은는이가의](\s|$)/g, ' ').trim();
-  const modelKeywords = modelNames.filter(model => 
-    cleanQuestion.includes(model.toLowerCase())
-  );
-
-  // 가격 관련 질문인지 확인 (조사 처리 추가)
-  const isPriceQuery = priceKeywords.some(keyword => 
-    cleanQuestion.includes(keyword.toLowerCase())
-  ) || /얼마/.test(cleanQuestion);
-
-  // 검색 키워드 구성 (조사 제거된 버전 사용)
-  const searchKeywords = Array.from(new Set([
-    ...modelKeywords,
-    ...(isPriceQuery ? priceKeywords : []),
-    ...cleanQuestion
-      .split(/[\s,.]+/)
-      .filter(word => word.length > 1 && !stopWords.has(word))
-  ]));
-
-  if (searchKeywords.length === 0) return [];
-
+  
   try {
+    // 먼저 모든 PDF 파일명을 가져와서 모델명 추출
+    const { data: files } = await supabase
+      .from('pdf_chunks')
+      .select('file_name')
+      .eq('owner_id', ownerId);
+
+    // price_모델명.pdf 형식에서 모델명 추출 및 매핑 적용
+    const modelNamesFromFiles = (files as FileData[] || [])
+      .map((file: FileData) => {
+        const match = file.file_name.match(/price_(.+)\.pdf/);
+        if (!match) return null;
+        
+        const extractedName = match[1].toLowerCase();
+        // 추출된 이름에 대한 모든 매핑된 이름 반환
+        return Object.entries(modelNameMapping)
+          .find(([key, values]) => values.includes(extractedName))
+          ?.[1] || [extractedName];
+      })
+      .filter(Boolean)
+      .flat() as string[];
+
+    // 기본 모델명 리스트와 파일에서 추출한 모델명 합치기
+    const modelNames = Array.from(new Set([
+      ...Object.values(modelNameMapping).flat(),
+      ...modelNamesFromFiles
+    ]));
+
+    // 질문에서 차량 모델명 추출 (조사 처리 추가)
+    const cleanQuestion = question.toLowerCase().replace(/[은는이가의](\s|$)/g, ' ').trim();
+    const modelKeywords = modelNames.filter(model => 
+      cleanQuestion.includes(model.toLowerCase())
+    );
+
+    // 검색을 위한 모델 키워드 확장 (영문/한글 모두 포함)
+    const expandedModelKeywords = modelKeywords.flatMap(keyword => {
+      const found = Object.values(modelNameMapping).find(values => 
+        values.includes(keyword.toLowerCase())
+      );
+      return found || [keyword];
+    });
+
+    // 가격 관련 질문인지 확인
+    const isPriceQuery = priceKeywords.some(keyword => 
+      cleanQuestion.includes(keyword.toLowerCase())
+    ) || /얼마/.test(cleanQuestion);
+
+    // 검색 키워드 구성
+    const searchKeywords = Array.from(new Set([
+      ...expandedModelKeywords,
+      ...(isPriceQuery ? priceKeywords : []),
+      ...cleanQuestion
+        .split(/[\s,.]+/)
+        .filter(word => word.length > 1 && !stopWords.has(word))
+    ]));
+
+    if (searchKeywords.length === 0) return [];
+
     let query = supabase
       .from('pdf_chunks')
       .select('*')
@@ -113,6 +166,14 @@ async function searchRelevantChunks(question: string, fileName?: string): Promis
     // 특정 파일 검색 시 파일명 필터 추가
     if (fileName) {
       query = query.eq('file_name', fileName);
+    }
+
+    // 모델명이 있는 경우 해당 PDF 파일만 검색 (확장된 키워드 사용)
+    if (expandedModelKeywords.length > 0) {
+      const filePatterns = expandedModelKeywords.map(model => 
+        `file_name.ilike.%${model}%`
+      );
+      query = query.or(filePatterns.join(','));
     }
 
     // 키워드 기반 검색 조건 추가
@@ -131,8 +192,15 @@ async function searchRelevantChunks(question: string, fileName?: string): Promis
       let score = 0;
       const lowerContent = chunk.content.toLowerCase();
       
-      // 모델명 매칭 점수 (가장 높은 가중치)
-      modelKeywords.forEach(model => {
+      // 파일명에서 모델명 매칭 (가장 높은 가중치)
+      expandedModelKeywords.forEach(model => {
+        if (chunk.file_name.toLowerCase().includes(model.toLowerCase())) {
+          score += 15; // 파일명 매칭에 더 높은 점수 부여
+        }
+      });
+
+      // 내용에서 모델명 매칭
+      expandedModelKeywords.forEach(model => {
         if (lowerContent.includes(model.toLowerCase())) {
           score += 10;
         }
@@ -348,9 +416,12 @@ export async function POST(request: Request) {
 
     // 기본 시스템 프롬프트 구성
     let systemPrompt = `당신은 정이노의 AI 클론입니다. 아래 정보를 바탕으로 1인칭으로 자연스럽게 대화하세요.
-현재 시각은 ${new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })} 입니다.
-
+    현재 시각은 ${new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })} 입니다.
+  
 당신은 기아자동차의 친절한 상담원이며 기아자동차의 기본적인 지식을 알고 있습니다.
+
+단종 모델 정보:
+- K3는 현재 단종되어 더 이상 판매되지 않습니다. K3에 대한 가격이나 정보 문의 시 "K3는 현재 단종되어 더 이상 판매되지 않습니다."라고 답변해주세요.
 
 차량 모델명 인식 규칙:
 1. 영문/한글 변환 규칙:
@@ -370,6 +441,7 @@ export async function POST(request: Request) {
    - "Bongo" = "봉고"
    - "Morning" = "모닝"
    - "Seltos" = "셀토스"
+   - "Tasman" = "티스만"
 
 2. 조합 규칙:
    - 영문과 한글 표기는 동일한 의미로 처리
@@ -382,27 +454,30 @@ export async function POST(request: Request) {
 
 3. 검색 처리:
    - 사용자가 영문으로 입력하더라도 한글 표기로 된 내용을 찾아서 답변
+   - 한글과 영문이 혼용된 경우에도 동일한 차량으로 인식
    - 모델명이 포함된 다양한 표현 방식을 모두 인식하여 관련 정보 제공
 
-차량 가격 정보:
+가격 답변 규칙:
+1. 기본 가격 안내:
+   - PDF 문서에서 찾은 가격 정보를 우선적으로 제공
+   - PDF에서 찾은 모든 트림의 가격 정보를 빠짐없이 안내
+   - PDF에서 정보를 찾지 못한 경우에만 아래의 기본 가격 정보를 사용
+   - 가격은 숫자와 '만원' 단위로 표시 (예: "2,775만원")
+   - 트림별 가격은 항상 트림명과 함께 제시
+   - 가격 정보 앞에는 항상 '**' 강조 표시를 사용
+
+기본 가격 정보 (PDF에서 찾지 못한 경우에만 사용):
 1. 스포티지:
    - 트렌디: 2,795만원
    - 프레스티지: 3,095만원
    - 시그니처: 3,395만원
    - 그래비티: 3,595만원
 
-
-4. 레이:
-   - 라이트: 2,775만원
-   - 에어: 2,955만원
-
-가격 답변 규칙:
-1. 기본 가격 안내:
-   - PDF 문서에서 찾은 정확한 가격 정보만 제공
-   - 가격 정보가 여러 개인 경우, 모든 트림의 가격을 안내
-   - 가격 정보를 찾지 못한 경우 시스템 프롬프트의 가격 정보 사용
-   - 가격은 숫자와 '만원' 단위로 표시 (예: "2,775만원")
-   - 트림별 가격 안내 시 트림명과 함께 제시
+3. K5:
+   - 기본형: 2,475만원
+   - 프레스티지: 2,675만원
+   - 노블레스: 2,875만원
+   - 시그니처: 3,075만원
 
 답변 스타일:
 1. PDF 내용 관련 질문:
@@ -411,7 +486,7 @@ export async function POST(request: Request) {
 2. 일반 대화:
    - 친근하고 전문적인 어조 유지
    - 필요시 개인 경험이나 지식 공유
-   - 항상 정중하고 예의 바른 어투 사용
+- 항상 정중하고 예의 바른 어투 사용
 
 주의사항:
 - PDF 내용과 관련된 질문에는 반드시 문서 내용을 기반으로 답변
