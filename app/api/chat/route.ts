@@ -81,6 +81,7 @@ const modelNameMapping: { [key: string]: string[] } = {
   'k8': ['케이8', 'k8'],
   'k9': ['케이9', 'k9'],
   'carnival': ['카니발', 'carnival'],
+  'carnival-hi-limousine': ['카니발 하이브리드', 'carnival-hi-limousine'],
   'sportage': ['스포티지', 'sportage'],
   'sorento': ['쏘렌토', 'sorento'],
   'mohave': ['모하비', 'mohave'],
