@@ -74,7 +74,7 @@ async function searchRelevantChunks(question: string, fileName?: string): Promis
   const ownerId = process.env.NEXT_PUBLIC_OWNER_ID;
   
   // 차량 가격 관련 키워드 추출
-  const priceKeywords = ['가격', '금액', '원', '만원'];
+  const priceKeywords = ['가격', '금액', '원', '만원', '얼마', '얼마야', '얼마예요', '얼마에요'];
   const modelNames = [
     '레이', 'ray', 'rayEV', '레이EV', '케이3', 'k3', '케이5', 'k5', '케이8', 'k8', '케이9', 'k9',
     '카니발', 'carnival', '스포티지', 'sportage', '쏘렌토', 'sorento',
@@ -82,21 +82,22 @@ async function searchRelevantChunks(question: string, fileName?: string): Promis
     '봉고', 'bongo', '모닝', 'morning', '셀토스', 'seltos'
   ];
 
-  // 질문에서 차량 모델명 추출
+  // 질문에서 차량 모델명 추출 (조사 처리 추가)
+  const cleanQuestion = question.toLowerCase().replace(/[은는이가의](\s|$)/g, ' ').trim();
   const modelKeywords = modelNames.filter(model => 
-    question.toLowerCase().includes(model.toLowerCase())
+    cleanQuestion.includes(model.toLowerCase())
   );
 
-  // 가격 관련 질문인지 확인
+  // 가격 관련 질문인지 확인 (조사 처리 추가)
   const isPriceQuery = priceKeywords.some(keyword => 
-    question.includes(keyword)
-  );
+    cleanQuestion.includes(keyword.toLowerCase())
+  ) || /얼마/.test(cleanQuestion);
 
-  // 검색 키워드 구성
+  // 검색 키워드 구성 (조사 제거된 버전 사용)
   const searchKeywords = Array.from(new Set([
     ...modelKeywords,
     ...(isPriceQuery ? priceKeywords : []),
-    ...question
+    ...cleanQuestion
       .split(/[\s,.]+/)
       .filter(word => word.length > 1 && !stopWords.has(word))
   ]));
@@ -381,14 +382,25 @@ export async function POST(request: Request) {
 
 3. 검색 처리:
    - 사용자가 영문으로 입력하더라도 한글 표기로 된 내용을 찾아서 답변
-   - 한글과 영문이 혼용된 경우에도 동일한 차량으로 인식
    - 모델명이 포함된 다양한 표현 방식을 모두 인식하여 관련 정보 제공
+
+차량 가격 정보:
+1. 스포티지:
+   - 트렌디: 2,795만원
+   - 프레스티지: 3,095만원
+   - 시그니처: 3,395만원
+   - 그래비티: 3,595만원
+
+
+4. 레이:
+   - 라이트: 2,775만원
+   - 에어: 2,955만원
 
 가격 답변 규칙:
 1. 기본 가격 안내:
    - PDF 문서에서 찾은 정확한 가격 정보만 제공
    - 가격 정보가 여러 개인 경우, 모든 트림의 가격을 안내
-   - 가격 정보를 찾지 못한 경우 "해당 모델의 가격 정보를 찾을 수 없습니다"라고 답변
+   - 가격 정보를 찾지 못한 경우 시스템 프롬프트의 가격 정보 사용
    - 가격은 숫자와 '만원' 단위로 표시 (예: "2,775만원")
    - 트림별 가격 안내 시 트림명과 함께 제시
 
