@@ -41,7 +41,7 @@ export default function ShareButton({ language }: ShareButtonProps) {
 
   // 링크 복사 기능
   const copyLink = async () => {
-    const url = "https://www.kia.com/kr/vehicles/catalog-price"
+    const url = "https://personal-pr-kia.vercel.app/"
     try {
       await navigator.clipboard.writeText(url)
       setShowToast(true)
@@ -57,7 +57,7 @@ export default function ShareButton({ language }: ShareButtonProps) {
     try {
       await navigator.share({
         title: 'KIA',
-        url: "https://www.kia.com/kr/vehicles/catalog-price"
+        url: "https://personal-pr-kia.vercel.app/"
       })
       setShowMenu(false)
     } catch (err) {

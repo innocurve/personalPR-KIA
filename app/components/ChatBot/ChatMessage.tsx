@@ -655,22 +655,22 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isDarkMode }) => {
 
   // 로딩 애니메이션 (점 3개)
   useEffect(() => {
-    if (isLoading) {
+    if (message.role === 'assistant' && !message.content) {
+      // 로딩 애니메이션 시작
       dotsIntervalRef.current = setInterval(() => {
         setDots(prev => {
-          if (prev === '') return '.'
-          if (prev === '.') return '..'
-          if (prev === '..') return '...'
-          return ''
+          if (prev.length >= 3) return ''
+          return prev + '.'
         })
       }, 500)
+
       return () => {
         if (dotsIntervalRef.current) {
           clearInterval(dotsIntervalRef.current)
         }
       }
     }
-  }, [isLoading])
+  }, [message.role, message.content])
 
   return (
     <div className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} items-start gap-2`}>

@@ -82,8 +82,15 @@ export default function ChatPage() {
       content: content,
       id: crypto.randomUUID()
     }
-    const updatedMessages = [...messages, userMessage]
-    setMessages(updatedMessages)
+    
+    // 빈 어시스턴트 메시지 추가 (로딩 표시용)
+    const assistantMessage: Message = {
+      role: 'assistant',
+      content: '',
+      id: crypto.randomUUID()
+    }
+    
+    setMessages(prev => [...prev, userMessage, assistantMessage])
 
     try {
       const response = await fetch('/api/chat', {
@@ -92,7 +99,7 @@ export default function ChatPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ 
-          messages: updatedMessages,
+          messages: [...messages, userMessage],
           pdfContent: pdfContent
         })
       });
@@ -107,23 +114,26 @@ export default function ChatPage() {
         throw new Error(data.error);
       }
 
-      const aiMessage: Message = { 
-        role: 'assistant', 
-        content: data.response,
-        id: crypto.randomUUID()
-      }
-      setMessages(prev => [...prev, aiMessage])
+      // 로딩 메시지를 실제 응답으로 업데이트
+      setMessages(prev => prev.map(msg => 
+        msg.id === assistantMessage.id 
+          ? { ...msg, content: data.response }
+          : msg
+      ));
     } catch (error) {
       console.error('Error:', error);
-      const errorMessage: Message = {
-        role: 'assistant',
-        content: translate(
-          error instanceof Error ? error.message : 'chatError',
-          language
-        ),
-        id: crypto.randomUUID()
-      };
-      setMessages(prev => [...prev, errorMessage])
+      // 에러 발생 시 로딩 메시지를 에러 메시지로 업데이트
+      setMessages(prev => prev.map(msg => 
+        msg.id === assistantMessage.id 
+          ? { 
+              ...msg, 
+              content: translate(
+                error instanceof Error ? error.message : 'chatError',
+                language
+              )
+            }
+          : msg
+      ));
     }
   }
 
