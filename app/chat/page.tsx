@@ -301,7 +301,12 @@ export default function ChatPage() {
         <div className="flex-1 p-4 overflow-y-auto">
           <div className="space-y-4">
             {messages.map((message, index) => (
-              <ChatMessage key={getMessageKey(message, index)} message={message} />
+              <ChatMessage 
+                key={getMessageKey(message, index)} 
+                message={message} 
+                isDarkMode={isDarkMode}
+                onSendMessage={handleSendMessage}
+              />
             ))}
             <div ref={messagesEndRef} />
           </div>

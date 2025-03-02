@@ -17,9 +17,10 @@ const CACHE_EXPIRY = 60 * 60 * 1000
 interface ChatMessageProps {
   message: Message
   isDarkMode?: boolean
+  onSendMessage?: (query: string) => void
 }
 
-const ChatMessage: React.FC<ChatMessageProps> = ({ message, isDarkMode }) => {
+const ChatMessage: React.FC<ChatMessageProps> = ({ message, isDarkMode, onSendMessage }) => {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -641,17 +642,32 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isDarkMode }) => {
   const buttonState = getButtonState()
 
   useEffect(() => {
-    if (message.role === 'assistant' && message.content) {
-      setIsLoading(false)
-      if (currentIndex < message.content.length) {
-        const timer = setInterval(() => {
-          setDisplayContent(prev => prev + message.content[currentIndex])
-          setCurrentIndex(prev => prev + 1)
-        }, 20)
-        return () => clearInterval(timer)
-      }
+    if (!message.content) return;
+
+    // 사용자 메시지는 즉시 표시
+    if (message.role === 'user') {
+      setDisplayContent(message.content);
+      return;
     }
-  }, [message.content, currentIndex])
+
+    // 어시스턴트 메시지는 애니메이션 적용
+    if (message.role === 'assistant') {
+      setDisplayContent('');
+      let currentIndex = 0;
+      const content = message.content;
+
+      const timer = setInterval(() => {
+        if (currentIndex <= content.length) {
+          setDisplayContent(content.slice(0, currentIndex));
+          currentIndex++;
+        } else {
+          clearInterval(timer);
+        }
+      }, 20);
+
+      return () => clearInterval(timer);
+    }
+  }, [message.role, message.content]);
 
   // 로딩 애니메이션 (점 3개)
   useEffect(() => {
@@ -673,7 +689,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isDarkMode }) => {
   }, [message.role, message.content])
 
   return (
-    <div className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} items-start gap-2`}>
+    <div className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} items-start gap-2 w-full`}>
       {message.role === 'assistant' && (
         <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 bg-[#EA0029]">
           <Image
@@ -685,21 +701,53 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isDarkMode }) => {
           />
         </div>
       )}
-      <div className={`max-w-[80%] rounded-lg px-4 py-2 ${
-        message.role === 'user'
-          ? 'bg-[#EA0029] text-white'
-          : isDarkMode
-          ? 'bg-gray-800 text-white'
-          : 'bg-gray-100 text-gray-900'
-      }`}>
-        {message.role === 'assistant' && isLoading ? (
-          <div className="flex items-center gap-1">
-            <span className="animate-bounce delay-0">.</span>
-            <span className="animate-bounce delay-100">.</span>
-            <span className="animate-bounce delay-200">.</span>
+      <div className="flex flex-col gap-2 max-w-[80%]">
+        <div className={`rounded-lg px-4 py-2 ${
+          message.role === 'user'
+            ? 'bg-[#EA0029] text-white rounded-l-2xl rounded-tr-2xl'
+            : isDarkMode
+            ? 'bg-gray-800 text-white rounded-r-2xl rounded-tl-2xl'
+            : 'bg-gray-100 text-gray-900 rounded-r-2xl rounded-tl-2xl'
+        }`}>
+          {message.role === 'assistant' && !message.content ? (
+            <div className="flex items-center h-6">
+              <div className="flex space-x-1">
+                <div className="w-1.5 h-1.5 bg-current rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
+                <div className="w-1.5 h-1.5 bg-current rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                <div className="w-1.5 h-1.5 bg-current rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+              </div>
+            </div>
+          ) : (
+            <p className="whitespace-pre-wrap break-words">
+              {message.role === 'user' ? message.content : displayContent}
+            </p>
+          )}
+        </div>
+        
+        {/* 초기 메시지일 때만 빠른 응답 버튼 표시 */}
+        {message.role === 'assistant' && 
+         message.content?.includes("안녕하세요! 저는 정이노's Clone입니다") && 
+         displayContent === message.content && (
+          <div className="flex flex-wrap gap-2">
+            {[
+              { label: 'K5 가격표', query: 'K5의 가격이 얼마인가요?' },
+              { label: 'K8 가격표', query: 'K8의 가격이 얼마인가요?' },
+              { label: 'K9 가격표', query: 'K9의 가격이 얼마인가요?' },
+              { label: '스포티지 가격표', query: '스포티지의 가격이 얼마인가요?' }
+            ].map((item, index) => (
+              <button
+                key={index}
+                onClick={() => onSendMessage?.(item.query)}
+                className={`px-4 py-2 rounded-full text-sm transition-all
+                  ${isDarkMode 
+                    ? 'bg-gray-800 text-white hover:bg-gray-700' 
+                    : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                  } border border-gray-200 hover:border-[#EA0029] hover:text-[#EA0029]`}
+              >
+                {item.label}
+              </button>
+            ))}
           </div>
-        ) : (
-          <p className="whitespace-pre-wrap break-words">{displayContent}</p>
         )}
       </div>
     </div>
