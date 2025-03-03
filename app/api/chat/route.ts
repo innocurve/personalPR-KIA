@@ -82,8 +82,8 @@ const modelNameMapping: { [key: string]: string[] } = {
   'k9': ['케이9', 'k9', '케이나인'],
   'carnival': ['카니발', 'carnival'],
   'carnival-hi-limousine': ['카니발 하이브리드', 'carnival-hi-limousine'],
-  'sportage': ['스포티지', 'sportage'],
-  'sorento': ['쏘렌토', 'sorento'],
+  'sportage': ['스포티지', 'sportage', 'Sportage', 'SPORTAGE'],
+  'sorento': ['쏘렌토', 'sorento', 'Sorento', 'SORENTO'],
   'mohave': ['모하비', 'mohave'],
   'niro': ['니로', 'niro'],
   'ev6': ['이브이6', 'ev6'],
@@ -94,11 +94,28 @@ const modelNameMapping: { [key: string]: string[] } = {
   'tasman': ['티스만', 'tasman']
 };
 
+<<<<<<< HEAD
 // 차량 가격 관련 키워드 추출
 const priceKeywords = ['가격', '금액', '원', '만원', '얼마', '얼마야', '얼마예요', '얼마에요', '가격표', '가격은'];
 
 // 트림 관련 키워드 추가
 const trimKeywords = ['트림', '모델', '옵션', '사양', '기본형', '기본 모델', '최상위', '최고급', '기본', '풀옵션'];
+=======
+function extractRequestedModels(message: string): string[] {
+  const lowerMessage = message.toLowerCase();
+  const requestedModels: string[] = [];
+  for (const canonical in modelNameMapping) {
+    for (const keyword of modelNameMapping[canonical]) {
+      if (lowerMessage.includes(keyword.toLowerCase())) {
+        requestedModels.push(canonical);
+        break; // 같은 모델에 대해 여러 키워드가 중복으로 걸리지 않도록
+      }
+    }
+  }
+  return requestedModels;
+}
+
+>>>>>>> bbce12259a14989ef7f0202296273536de20a3d7
 
 // 키워드 기반 PDF 청크 검색 함수
 async function searchRelevantChunks(question: string, fileName?: string): Promise<PdfContext[]> {
@@ -332,10 +349,17 @@ async function searchRelevantChunks(question: string, fileName?: string): Promis
       };
     });
 
+<<<<<<< HEAD
     // 상위 청크 반환 (가격 정보 검색 시 더 많은 컨텍스트 제공)
     return scoredChunks
       .sort((a, b) => b.score - a.score)
       .slice(0, resultLimit)  // 모델 가격 정보는 25개, 일반 가격 정보는 15개, 일반 정보는 10개로 설정
+=======
+    // 상위 청크 반환 (가격 정보 검색 시 제한 없음)
+    return scoredChunks
+      .sort((a, b) => b.score - a.score)
+      .slice(0, isPriceQuery ? undefined : 3)
+>>>>>>> bbce12259a14989ef7f0202296273536de20a3d7
       .map(({ fileName, content, pageNumber }) => ({
         fileName,
         content,
@@ -572,13 +596,85 @@ export async function POST(request: Request) {
   const ownerId = process.env.NEXT_PUBLIC_OWNER_ID;
 
   try {
-    // 대화 컨텍스트 초기화
+    // ----- 동적 차량 모델 추출 및 가격 정보 조회 시작 -----
+    if (lastUserMessage.toLowerCase().includes("가격")) {
+      // 모델명 추출: modelNameMapping을 이용
+      const requestedModels = extractRequestedModels(lastUserMessage);
+      if (requestedModels.length > 0) {
+        let finalResponse = "";
+        for (const model of requestedModels) {
+          // 대소문자 구분 없이 검색하도록 수정
+          let { data: modelPriceData, error: priceError } = await supabase
+            .from('kia_vehicle_info')
+            .select('content, model')
+            .ilike('model', model)  // 대소문자 구분 없이 검색
+            .eq('type', 'price')
+            .maybeSingle();  // single() 대신 maybeSingle() 사용
+
+          if (priceError) {
+            console.error(`Error fetching price for ${model}:`, priceError);
+            finalResponse += `${model.toUpperCase()} 가격 정보를 조회할 수 없습니다.\n\n`;
+            continue;
+          }
+
+          if (!modelPriceData) {
+            // 다른 형태의 모델명으로 한 번 더 시도
+            const alternativeModel = model.toLowerCase() === 'morning' ? '모닝' : 
+                                   model.toLowerCase() === '모닝' ? 'morning' : model;
+            
+            const { data: altModelData, error: altError } = await supabase
+              .from('kia_vehicle_info')
+              .select('content, model')
+              .ilike('model', alternativeModel)
+              .eq('type', 'price')
+              .maybeSingle();
+
+            if (altError || !altModelData) {
+              finalResponse += `${model.toUpperCase()} 가격 정보를 조회할 수 없습니다.\n\n`;
+              continue;
+            }
+
+            modelPriceData = altModelData;
+          }
+
+          const pricingJSON = modelPriceData.content;
+          let priceResponse = `${modelPriceData.model.toUpperCase()} 가격 정보:\n\n`;
+          for (const engine in pricingJSON) {
+            priceResponse += `[${engine.replace(/_/g, ' ')}]\n`;
+            const trims = pricingJSON[engine];
+            for (const trim in trims) {
+              const details = trims[trim];
+              let detailStrings: string[] = [];
+              for (const key in details) {
+                const displayKey = key.replace(/_/g, ' ');
+                const value = details[key];
+                detailStrings.push(
+                  typeof value === 'number'
+                    ? `${displayKey}: ${value}만원`
+                    : `${displayKey}: ${value}`
+                );
+              }
+              priceResponse += `- ${trim}: ${detailStrings.join(', ')}\n`;
+            }
+            priceResponse += "\n";
+          }
+          finalResponse += priceResponse;
+        }
+        finalResponse += `\n추가로 궁금하신 사항이 있으시면 언제든지 말씀해 주세요!`;
+        return new Response(
+          JSON.stringify({ response: finalResponse }),
+          { headers: { 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+    // ----- 동적 차량 모델 추출 및 가격 정보 조회 끝 -----
+
+    // 기존 PDF 관련 대화 컨텍스트 초기화 및 청크 검색 (가격 문의가 아닐 경우 실행)
     let conversationContext: ConversationContext = {
       pdfContent: pdfContent,
       recentPdfChunks: []
     };
 
-    // PDF 관련 청크 검색
     if (lastUserMessage) {
       const relevantChunks = await searchRelevantChunks(lastUserMessage);
       if (relevantChunks.length > 0) {
@@ -586,24 +682,55 @@ export async function POST(request: Request) {
       }
     }
 
+<<<<<<< HEAD
     // 기본 시스템 프롬프트 구성
     let systemPrompt = `당신은 기아자동차의 가격표와 카탈로그 정보를 제공하는 챗봇입니다.
+=======
+    let systemPrompt = `당신은 정이노의 AI 클론입니다. 아래 정보를 바탕으로 1인칭으로 자연스럽게 대화하세요.
+    현재 시각은 ${new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })} 입니다.
+  
+당신은 기아자동차의 친절한 상담원이며 기아자동차의 기본적인 지식을 알고 있습니다.
+>>>>>>> bbce12259a14989ef7f0202296273536de20a3d7
 
 역할:
 - 기아자동차 차량의 가격, 사양, 옵션 등에 대한 정보 제공
 - PDF 문서에서 추출한 정보를 기반으로 정확한 답변 제공
 - 사용자의 질문에 친절하고 전문적으로 응답
 
+<<<<<<< HEAD
 차량 정보 제공 지침:
 1. 가격 정보 요청 시:
    - 모든 트림별 가격을 상세히 나열
    - 가격표에 있는 모든 트림 정보를 빠짐없이 제공
    - 옵션에 따른 가격 변동 사항도 포함
+=======
+2. 조합 규칙:
+   - 영문과 한글 표기는 동일한 의미로 처리
+   - 띄어쓰기 유무는 무시
+   - 대소문자 구분 없이 처리
+   - 예시: 
+     * "rayEV" = "레이EV" = "레이 이브이"
+     * "K3 GT" = "케이3 GT" = "K3지티"
+     * "EV6 GT" = "이브이6 GT" = "EV6 지티"
+
+3. 검색 처리:
+   - 사용자가 영문으로 입력하더라도 한글 표기로 된 내용을 찾아서 답변
+   - 한글과 영문이 혼용된 경우에도 동일한 차량으로 인식
+   - 모델명이 포함된 다양한 표현 방식을 모두 인식하여 관련 정보 제공
+
+가격 답변 규칙:
+1. 기본 가격 안내:
+   - PDF 문서에서 찾은 가격 정보를 우선적으로 제공
+   - PDF에서 찾은 모든 트림의 가격 정보를 빠짐없이 안내
+   - PDF에서 정보를 찾지 못한 경우에만 기본 가격 정보를 사용
+   - 가격은 숫자와 '만원' 단위로 표시 (예: "2,775만원")
+>>>>>>> bbce12259a14989ef7f0202296273536de20a3d7
    - 트림별 가격은 항상 트림명과 함께 제시
    - 가격 정보 앞에는 항상 '**' 강조 표시를 사용
    - 엔진 타입별(가솔린, 디젤, LPG, 하이브리드 등)로 구분하여 제공
    - 개별소비세 적용/미적용 가격을 모두 표시
 
+<<<<<<< HEAD
 2. 트림 정보 요청 시:
    - 모든 트림 종류와 각 트림의 주요 특징 설명
    - 트림별 기본 사양과 옵션 차이점 상세히 설명
@@ -618,6 +745,8 @@ export async function POST(request: Request) {
    - 정보가 많은 경우에도 요약하지 말고 모든 정보를 빠짐없이 제공
    - 트림별 가격 정보는 표 형식이 아닌 목록 형식으로 제공하여 가독성 높이기
 
+=======
+>>>>>>> bbce12259a14989ef7f0202296273536de20a3d7
 답변 스타일:
 1. PDF 내용 관련 질문:
    - PDF 내용을 기반으로 정확하게 답변
@@ -634,10 +763,8 @@ export async function POST(request: Request) {
 - 페이지 번호나 문서 출처를 언급하지 않음
 `;
 
-    // PDF 컨텍스트가 있는 경우 시스템 프롬프트에 통합
     systemPrompt = integrateContextToPrompt(systemPrompt, conversationContext);
 
-    // OpenAI API 호출
     const response = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
@@ -645,10 +772,9 @@ export async function POST(request: Request) {
         ...messages
       ],
       temperature: 0.7,
-      max_tokens: 1000
+      max_tokens: 4000
     });
 
-    // 채팅 내역 저장
     await supabase.from('chat_history').insert({
       role: 'user',
       content: lastUserMessage,

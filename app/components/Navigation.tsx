@@ -72,6 +72,9 @@ export default function Navigation({ language }: NavigationProps) {
               <Link href="/#values" className="font-mono tracking-tight text-[#05141F] hover:text-gray-600 transition duration-300">
                 {translate('values', language)}
               </Link>
+              <Link href="/#search" className="font-mono tracking-tight text-[#05141F] hover:text-gray-600 transition duration-300">
+                {translate('search', language)}
+              </Link>
               <Link href="/#community" className="font-mono tracking-tight text-[#05141F] hover:text-gray-600 transition duration-300">
                 {translate('activities', language)}
               </Link>
@@ -124,10 +127,17 @@ export default function Navigation({ language }: NavigationProps) {
               </Link>
               <Link 
                 href="/#community" 
-                className="block py-5 px-6 text-[#05141F] hover:text-[#EA0029] transition duration-300 font-mono tracking-tight hover:bg-gray-50 dark:hover:bg-gray-700 text-lg"
+                className="block py-5 px-6 text-[#05141F] hover:text-[#EA0029] transition duration-300 font-mono tracking-tight border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 text-lg"
                 onClick={toggleMenu}
               >
                 {translate('community', language)}
+              </Link>
+              <Link 
+                href="/#search" 
+                className="block py-5 px-6 text-[#05141F] hover:text-[#EA0029] transition duration-300 font-mono tracking-tight hover:bg-gray-50 dark:hover:bg-gray-700 text-lg"
+                onClick={toggleMenu}
+              >
+                {translate('search', language)}
               </Link>
             </div>
           </motion.nav>
