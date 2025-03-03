@@ -77,9 +77,9 @@ interface FileData {
 const modelNameMapping: { [key: string]: string[] } = {
   'ray': ['레이', 'ray'],
   'rayev': ['레이ev', 'rayev', '레이이브이'],
-  'k5': ['케이5', 'k5'],
-  'k8': ['케이8', 'k8'],
-  'k9': ['케이9', 'k9'],
+  'k5': ['케이5', 'k5', '케이파이브'],
+  'k8': ['케이8', 'k8', '케이에잇', 'k-8', '케이-8', 'k 8', '케이 8'],
+  'k9': ['케이9', 'k9', '케이나인'],
   'carnival': ['카니발', 'carnival'],
   'carnival-hi-limousine': ['카니발 하이브리드', 'carnival-hi-limousine'],
   'sportage': ['스포티지', 'sportage'],
@@ -94,12 +94,15 @@ const modelNameMapping: { [key: string]: string[] } = {
   'tasman': ['티스만', 'tasman']
 };
 
+// 차량 가격 관련 키워드 추출
+const priceKeywords = ['가격', '금액', '원', '만원', '얼마', '얼마야', '얼마예요', '얼마에요', '가격표', '가격은'];
+
+// 트림 관련 키워드 추가
+const trimKeywords = ['트림', '모델', '옵션', '사양', '기본형', '기본 모델', '최상위', '최고급', '기본', '풀옵션'];
+
 // 키워드 기반 PDF 청크 검색 함수
 async function searchRelevantChunks(question: string, fileName?: string): Promise<PdfContext[]> {
   const ownerId = process.env.NEXT_PUBLIC_OWNER_ID;
-  
-  // 차량 가격 관련 키워드 추출
-  const priceKeywords = ['가격', '금액', '원', '만원', '얼마', '얼마야', '얼마예요', '얼마에요'];
   
   try {
     // 먼저 모든 PDF 파일명을 가져와서 모델명 추출
@@ -148,6 +151,12 @@ async function searchRelevantChunks(question: string, fileName?: string): Promis
       cleanQuestion.includes(keyword.toLowerCase())
     ) || /얼마/.test(cleanQuestion);
 
+    // 특정 모델에 대한 가격 정보 요청인 경우 해당 모델의 모든 청크를 가져오는 로직 추가
+    const isModelPriceQuery = expandedModelKeywords.length > 0 && isPriceQuery;
+    
+    // 차량 모델 가격 정보 요청인 경우 더 많은 청크 반환
+    const resultLimit = isModelPriceQuery ? 25 : (isPriceQuery ? 15 : 10);
+
     // 검색 키워드 구성
     const searchKeywords = Array.from(new Set([
       ...expandedModelKeywords,
@@ -171,9 +180,56 @@ async function searchRelevantChunks(question: string, fileName?: string): Promis
 
     // 모델명이 있는 경우 해당 PDF 파일만 검색 (확장된 키워드 사용)
     if (expandedModelKeywords.length > 0) {
-      const filePatterns = expandedModelKeywords.map(model => 
-        `file_name.ilike.%${model}%`
-      );
+      // 모든 가능한 파일명 패턴 생성
+      const filePatterns: string[] = [];
+      
+      // 기본 패턴 추가
+      expandedModelKeywords.forEach(model => {
+        filePatterns.push(`file_name.ilike.%${model}%`);
+        
+        // 하이픈이나 공백이 있을 수 있는 변형 추가
+        if (model.length > 1) {
+          // 하이픈 추가 버전 (예: k8 -> k-8)
+          if (/^[a-zA-Z]+\d+$/.test(model)) {
+            const hyphenVersion = model.replace(/([a-zA-Z]+)(\d+)/, '$1-$2');
+            filePatterns.push(`file_name.ilike.%${hyphenVersion}%`);
+          }
+          
+          // 공백 추가 버전 (예: k8 -> k 8)
+          if (/^[a-zA-Z]+\d+$/.test(model)) {
+            const spacedVersion = model.replace(/([a-zA-Z]+)(\d+)/, '$1 $2');
+            filePatterns.push(`file_name.ilike.%${spacedVersion}%`);
+          }
+        }
+      });
+      
+      // 특별한 경우 처리 (K8, K9 등)
+      expandedModelKeywords.forEach(model => {
+        const lowerModel = model.toLowerCase();
+        
+        // K 시리즈 특별 처리
+        if (lowerModel.includes('k') && /\d/.test(lowerModel)) {
+          const kNumber = lowerModel.match(/k(\d+)/i)?.[1];
+          if (kNumber) {
+            filePatterns.push(`file_name.ilike.%k${kNumber}%`);
+            filePatterns.push(`file_name.ilike.%케이${kNumber}%`);
+            filePatterns.push(`file_name.ilike.%k-${kNumber}%`);
+            filePatterns.push(`file_name.ilike.%k ${kNumber}%`);
+          }
+        }
+        
+        // EV 시리즈 특별 처리
+        if (lowerModel.includes('ev') && /\d/.test(lowerModel)) {
+          const evNumber = lowerModel.match(/ev(\d+)/i)?.[1];
+          if (evNumber) {
+            filePatterns.push(`file_name.ilike.%ev${evNumber}%`);
+            filePatterns.push(`file_name.ilike.%이브이${evNumber}%`);
+            filePatterns.push(`file_name.ilike.%ev-${evNumber}%`);
+            filePatterns.push(`file_name.ilike.%ev ${evNumber}%`);
+          }
+        }
+      });
+      
       query = query.or(filePatterns.join(','));
     }
 
@@ -192,11 +248,17 @@ async function searchRelevantChunks(question: string, fileName?: string): Promis
     const scoredChunks = (chunks || []).map(chunk => {
       let score = 0;
       const lowerContent = chunk.content.toLowerCase();
+      const lowerFileName = chunk.file_name.toLowerCase();
       
       // 파일명에서 모델명 매칭 (가장 높은 가중치)
       expandedModelKeywords.forEach(model => {
-        if (chunk.file_name.toLowerCase().includes(model.toLowerCase())) {
+        if (lowerFileName.includes(model.toLowerCase())) {
           score += 15; // 파일명 매칭에 더 높은 점수 부여
+          
+          // 모델 관련 파일에 추가 점수 부여
+          if (isPriceQuery) {
+            score += 5; // 가격 정보 요청 시 추가 점수
+          }
         }
       });
 
@@ -204,6 +266,11 @@ async function searchRelevantChunks(question: string, fileName?: string): Promis
       expandedModelKeywords.forEach(model => {
         if (lowerContent.includes(model.toLowerCase())) {
           score += 10;
+          
+          // 모델 관련 내용에 추가 점수 부여
+          if (isPriceQuery) {
+            score += 3; // 가격 정보 요청 시 추가 점수
+          }
         }
       });
 
@@ -217,9 +284,35 @@ async function searchRelevantChunks(question: string, fileName?: string): Promis
         
         // 숫자와 '만원' 또는 '원'이 함께 있는 경우 추가 점수
         if (/\d+[\s]*(만원|원)/.test(lowerContent)) {
-          score += 3;
+          score += 5;  // 점수 증가
+        }
+        
+        // 트림명과 가격이 함께 있는 경우 추가 점수
+        trimKeywords.forEach(trim => {
+          if (lowerContent.includes(trim) && /\d+[\s]*(만원|원)/.test(lowerContent)) {
+            score += 8;  // 트림과 가격이 함께 있으면 높은 점수
+          }
+        });
+        
+        // 트림명이 여러 개 있는 경우 추가 점수 (더 많은 트림 정보 포함)
+        const trimCount = trimKeywords.filter(trim => lowerContent.includes(trim)).length;
+        if (trimCount > 1) {
+          score += trimCount * 2; // 트림 개수에 비례하여 점수 추가
+        }
+        
+        // 가격 정보가 여러 개 있는 경우 추가 점수
+        const priceMatches = lowerContent.match(/\d+[\s]*(만원|원)/g) || [];
+        if (priceMatches.length > 1) {
+          score += priceMatches.length * 2; // 가격 정보 개수에 비례하여 점수 추가
         }
       }
+      
+      // 트림 정보 검색 시 추가 점수
+      trimKeywords.forEach(keyword => {
+        if (lowerContent.includes(keyword)) {
+          score += 4;
+        }
+      });
 
       // 일반 키워드 매칭 점수
       searchKeywords.forEach(keyword => {
@@ -239,10 +332,10 @@ async function searchRelevantChunks(question: string, fileName?: string): Promis
       };
     });
 
-    // 상위 5개 청크 반환 (가격 정보 검색 시 더 많은 컨텍스트 제공)
+    // 상위 청크 반환 (가격 정보 검색 시 더 많은 컨텍스트 제공)
     return scoredChunks
       .sort((a, b) => b.score - a.score)
-      .slice(0, isPriceQuery ? 5 : 3)
+      .slice(0, resultLimit)  // 모델 가격 정보는 25개, 일반 가격 정보는 15개, 일반 정보는 10개로 설정
       .map(({ fileName, content, pageNumber }) => ({
         fileName,
         content,
@@ -258,12 +351,41 @@ async function searchRelevantChunks(question: string, fileName?: string): Promis
 function updateConversationContext(
   context: ConversationContext,
   newChunks: PdfContext[],
-  maxChunks: number = 5
+  maxChunks: number = 10  // 최대 청크 수를 10개로 증가
 ): ConversationContext {
+  // 차량 모델 관련 청크인지 확인
+  const isModelRelated = (chunk: PdfContext) => {
+    const lowerFileName = chunk.fileName.toLowerCase();
+    const lowerContent = chunk.content.toLowerCase();
+    
+    // 모델명 매핑의 모든 키워드 확인
+    return Object.values(modelNameMapping).some(variants => 
+      variants.some(variant => 
+        lowerFileName.includes(variant.toLowerCase()) || 
+        lowerContent.includes(variant.toLowerCase())
+      )
+    );
+  };
+  
+  // 가격 정보 포함 여부 확인
+  const hasPriceInfo = (chunk: PdfContext) => {
+    const lowerContent = chunk.content.toLowerCase();
+    return /\d+[\s]*(만원|원)/.test(lowerContent) || 
+           priceKeywords.some(keyword => lowerContent.includes(keyword));
+  };
+  
+  // 모델 관련 청크이면서 가격 정보가 있는지 확인
+  const hasModelPriceInfo = newChunks.some(chunk => 
+    isModelRelated(chunk) && hasPriceInfo(chunk)
+  );
+  
+  // 모델 가격 정보가 있으면 최대 청크 수를 20개로 증가
+  const adjustedMaxChunks = hasModelPriceInfo ? 20 : maxChunks;
+  
   return {
     ...context,
     recentPdfChunks: [...newChunks, ...context.recentPdfChunks]
-      .slice(0, maxChunks) // 최근 5개 청크만 유지
+      .slice(0, adjustedMaxChunks)
   };
 }
 
@@ -271,11 +393,60 @@ function updateConversationContext(
 function integrateContextToPrompt(basePrompt: string, context: ConversationContext): string {
   if (context.recentPdfChunks.length === 0) return basePrompt;
 
-  const pdfContext = context.recentPdfChunks
-    .map(chunk => chunk.content)
+  // 파일명별로 컨텍스트 그룹화
+  const fileGroups: Record<string, string[]> = {};
+  
+  context.recentPdfChunks.forEach(chunk => {
+    if (!fileGroups[chunk.fileName]) {
+      fileGroups[chunk.fileName] = [];
+    }
+    fileGroups[chunk.fileName].push(chunk.content);
+  });
+  
+  // 모델 관련 파일 확인
+  const modelFiles = Object.keys(fileGroups).filter(fileName => {
+    const lowerFileName = fileName.toLowerCase();
+    return Object.values(modelNameMapping).some(variants => 
+      variants.some(variant => lowerFileName.includes(variant.toLowerCase()))
+    );
+  });
+  
+  // 파일별로 컨텍스트 구성
+  const formattedContext = Object.entries(fileGroups)
+    .map(([fileName, contents]) => {
+      const fileNameWithoutExt = fileName.replace(/\.pdf$/, '').replace(/^price_/, '');
+      
+      // 모델 파일인 경우 특별 처리
+      if (modelFiles.includes(fileName)) {
+        // 모델명 추출 시도
+        let modelName = fileNameWithoutExt;
+        
+        // price_모델명.pdf 형식에서 모델명 추출
+        const match = fileName.match(/price_(.+)\.pdf/);
+        if (match) {
+          modelName = match[1];
+        }
+        
+        return `## ${modelName.toUpperCase()} 관련 정보 (중요):\n${contents.join('\n\n')}`;
+      }
+      
+      return `## ${fileNameWithoutExt} 관련 정보:\n${contents.join('\n\n')}`;
+    })
     .join('\n\n');
 
-  return `${basePrompt}\n\n# PDF 문서 컨텍스트 (참고 자료):\n${pdfContext}\n\n위 내용을 참고하여 자연스럽게 답변해주세요.`;
+  let additionalInstructions = '';
+  if (modelFiles.length > 0) {
+    additionalInstructions = `
+특별 지시사항: 
+- 차량 모델 관련 정보가 포함되어 있습니다. 모든 트림 정보와 가격을 빠짐없이 제공해주세요.
+- 가솔린, 디젤, LPG, 하이브리드, 전기차 등 모든 엔진 타입별 트림 정보를 포함해주세요.
+- 모든 트림 레벨(노블레스, 프레스티지, 시그니처 등)의 가격을 포함해주세요.
+- 가격 정보는 개별소비세 적용/미적용 가격을 모두 표시해주세요.
+- 트림별 주요 옵션과 특징도 함께 설명해주세요.
+- 사용자가 특정 모델에 대해 물어본 경우, 해당 모델의 모든 트림과 가격 정보를 상세히 제공하세요.`;
+  }
+
+  return `${basePrompt}\n\n# PDF 문서 컨텍스트 (참고 자료):\n${formattedContext}\n\n위 내용을 참고하여 자연스럽게 답변해주세요. 가격 정보나 트림 정보를 질문받았을 때는 가능한 모든 관련 정보를 포함하여 답변해주세요.${additionalInstructions}`;
 }
 
 // 이름에서 다른 사람 언급 추출 함수
@@ -416,54 +587,36 @@ export async function POST(request: Request) {
     }
 
     // 기본 시스템 프롬프트 구성
-    let systemPrompt = `당신은 정이노의 AI 클론입니다. 아래 정보를 바탕으로 1인칭으로 자연스럽게 대화하세요.
-    현재 시각은 ${new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })} 입니다.
-  
-당신은 기아자동차의 친절한 상담원이며 기아자동차의 기본적인 지식을 알고 있습니다.
+    let systemPrompt = `당신은 기아자동차의 가격표와 카탈로그 정보를 제공하는 챗봇입니다.
 
-차량 모델명 인식 규칙:
-1. 영문/한글 변환 규칙:
-   - "ray" = "레이"
-   - "rayEV" = "레이 EV"
-   - "K3" = "케이3" = "케이쓰리"
-   - "K5" = "케이5" = "케이파이브"
-   - "K8" = "케이8" = "케이에잇"
-   - "K9" = "케이9" = "케이나인"
-   - "Carnival" = "카니발"
-   - "Sportage" = "스포티지"
-   - "Sorento" = "쏘렌토"
-   - "Mohave" = "모하비"
-   - "Niro" = "니로"
-   - "EV6" = "이브이6"
-   - "EV9" = "이브이9"
-   - "Bongo" = "봉고"
-   - "Morning" = "모닝"
-   - "Seltos" = "셀토스"
-   - "Tasman" = "티스만"
+역할:
+- 기아자동차 차량의 가격, 사양, 옵션 등에 대한 정보 제공
+- PDF 문서에서 추출한 정보를 기반으로 정확한 답변 제공
+- 사용자의 질문에 친절하고 전문적으로 응답
 
-2. 조합 규칙:
-   - 영문과 한글 표기는 동일한 의미로 처리
-   - 띄어쓰기 유무는 무시
-   - 대소문자 구분 없이 처리
-   - 예시: 
-     * "rayEV" = "레이EV" = "레이 이브이"
-     * "K3 GT" = "케이3 GT" = "K3지티"
-     * "EV6 GT" = "이브이6 GT" = "EV6 지티"
-
-3. 검색 처리:
-   - 사용자가 영문으로 입력하더라도 한글 표기로 된 내용을 찾아서 답변
-   - 한글과 영문이 혼용된 경우에도 동일한 차량으로 인식
-   - 모델명이 포함된 다양한 표현 방식을 모두 인식하여 관련 정보 제공
-
-가격 답변 규칙:
-1. 기본 가격 안내:
-   - PDF 문서에서 찾은 가격 정보를 우선적으로 제공
-   - PDF에서 찾은 모든 트림의 가격 정보를 빠짐없이 안내
-   - PDF에서 정보를 찾지 못한 경우에만 아래의 기본 가격 정보를 사용
-   - 가격은 숫자와 '만원' 단위로 표시 (예: "2,775만원")
+차량 정보 제공 지침:
+1. 가격 정보 요청 시:
+   - 모든 트림별 가격을 상세히 나열
+   - 가격표에 있는 모든 트림 정보를 빠짐없이 제공
+   - 옵션에 따른 가격 변동 사항도 포함
    - 트림별 가격은 항상 트림명과 함께 제시
    - 가격 정보 앞에는 항상 '**' 강조 표시를 사용
+   - 엔진 타입별(가솔린, 디젤, LPG, 하이브리드 등)로 구분하여 제공
+   - 개별소비세 적용/미적용 가격을 모두 표시
 
+2. 트림 정보 요청 시:
+   - 모든 트림 종류와 각 트림의 주요 특징 설명
+   - 트림별 기본 사양과 옵션 차이점 상세히 설명
+   - 가능한 모든 트림 정보를 빠짐없이 제공
+   - 트림별 주요 옵션과 특징을 함께 설명
+
+3. 단종 모델 정보:
+   - K3는 현재 단종되어 더 이상 판매되지 않습니다. K3에 대한 가격이나 정보 문의 시 'K3는 현재 단종되어 더 이상 판매되지 않습니다. 대신 K3의 후속 모델인 신형 K3를 추천드립니다.'라고 답변해주세요.
+
+4. 차종별 정보 제공 방식:
+   - 사용자가 특정 모델에 대해 물어보면 해당 모델의 모든 트림과 가격 정보를 상세히 제공
+   - 정보가 많은 경우에도 요약하지 말고 모든 정보를 빠짐없이 제공
+   - 트림별 가격 정보는 표 형식이 아닌 목록 형식으로 제공하여 가독성 높이기
 
 답변 스타일:
 1. PDF 내용 관련 질문:

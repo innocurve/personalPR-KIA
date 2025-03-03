@@ -9,7 +9,7 @@ const openai = new OpenAI({
 export const stopWords = new Set(['이', '그', '저', '것', '수', '등', '및', '를', '이다', '입니다', '했다', '했습니다']);
 
 // 텍스트를 청크로 나누는 함수
-export function splitIntoChunks(text: string, maxChunkSize: number = 1500): string[] {
+export function splitIntoChunks(text: string, maxChunkSize: number = 2500): string[] {
   // 문단 단위로 먼저 분할
   const paragraphs = text.split(/\n\s*\n/);
   const chunks: string[] = [];
