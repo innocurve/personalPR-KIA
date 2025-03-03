@@ -6,6 +6,17 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { CarFront } from 'lucide-react'
 
+// Telegram WebApp 타입 선언
+declare global {
+  interface Window {
+    Telegram?: {
+      WebApp?: {
+        openLink: (url: string) => void;
+      };
+    };
+  }
+}
+
 interface ContactOptionsProps {
   language: Language
 }
@@ -21,7 +32,11 @@ const ContactOptions: React.FC<ContactOptionsProps> = ({ language }) => {
     } else if (key === 'phone') {
       window.location.href = 'tel:+8210-1234-5678'
     } else if (key === 'innocard') {
-      window.open('https://www.kia.com/kr/vehicles/catalog-price', '_blank')
+      if (window.Telegram?.WebApp) {
+        window.Telegram.WebApp.openLink('https://www.kia.com/kr/vehicles/catalog-price')
+      } else {
+        window.open('https://www.kia.com/kr/vehicles/catalog-price', '_blank', 'noopener,noreferrer')
+      }
     }
   }
 

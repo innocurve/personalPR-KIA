@@ -496,6 +496,12 @@ export const translations: TranslationDictionary = {
     ja: '送信',
     zh: '发送'
   },
+  apiError: {
+    ko: '오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+    en: 'An error occurred. Please try again later.',
+    ja: 'エラーが発生しました。しばらくしてからもう一度お試しください。',
+    zh: '发生错误。请稍后再试。'
+  },
 };
 
 // 음성 대화 페이지 설명 통합
