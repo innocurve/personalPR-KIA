@@ -18,9 +18,10 @@ interface ChatMessageProps {
   message: Message
   isDarkMode?: boolean
   onSendMessage?: (query: string) => void
+  isThinking?: boolean
 }
 
-const ChatMessage: React.FC<ChatMessageProps> = ({ message, isDarkMode, onSendMessage }) => {
+const ChatMessage: React.FC<ChatMessageProps> = ({ message, isDarkMode, onSendMessage, isThinking }) => {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -709,13 +710,11 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isDarkMode, onSendMe
             ? 'bg-gray-800 text-white rounded-r-2xl rounded-tl-2xl'
             : 'bg-gray-100 text-gray-900 rounded-r-2xl rounded-tl-2xl'
         }`}>
-          {message.role === 'assistant' && !message.content ? (
-            <div className="flex items-center h-6">
-              <div className="flex space-x-1">
-                <div className="w-1.5 h-1.5 bg-current rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
-                <div className="w-1.5 h-1.5 bg-current rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                <div className="w-1.5 h-1.5 bg-current rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
-              </div>
+          {isThinking ? (
+            <div className="thinking-dots">
+              <span>·</span>
+              <span>·</span>
+              <span>·</span>
             </div>
           ) : (
             <p className="whitespace-pre-wrap break-words">

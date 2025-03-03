@@ -2,6 +2,9 @@ import { OpenAI } from 'openai';
 import { supabase } from '@/app/utils/supabase';
 import { stopWords } from '@/lib/pdfUtils';
 
+// Edge Runtime 설정 추가
+export const runtime = 'edge';
+
 // OpenAI 인스턴스 생성
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!,
@@ -567,23 +570,54 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const { messages, pdfContent } = await request.json();
-  const lastUserMessage = messages.findLast((msg: Message) => msg.role === 'user')?.content || '';
-  const ownerId = process.env.NEXT_PUBLIC_OWNER_ID;
-
+  console.log('[Chat API] Received request')
+  
   try {
-    // 대화 컨텍스트 초기화
+    const body = await request.json().catch(error => {
+      console.error('[Chat API] Failed to parse request body:', error)
+      return null
+    })
+
+    if (!body) {
+      return new Response(
+        JSON.stringify({ error: '잘못된 요청 형식입니다.' }), 
+        { status: 400 }
+      )
+    }
+
+    const { messages, pdfContent } = body
+    console.log('[Chat API] Messages received:', messages?.length)
+
+    if (!messages || !Array.isArray(messages)) {
+      console.log('[Chat API] Invalid or missing messages')
+      return new Response(
+        JSON.stringify({ error: '메시지를 입력해주세요.' }), 
+        { status: 400 }
+      )
+    }
+
+    // OpenAI 클라이언트 초기화
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY!,
+    })
+
+    // 기존의 컨텍스트 처리 로직 유지
     let conversationContext: ConversationContext = {
-      pdfContent: pdfContent,
       recentPdfChunks: []
-    };
+    }
+
+    // PDF 컨텍스트가 있는 경우 처리
+    if (pdfContent) {
+      conversationContext.pdfContent = pdfContent
+    }
+
+    // 마지막 사용자 메시지 가져오기
+    const lastUserMessage = messages[messages.length - 1]
 
     // PDF 관련 청크 검색
-    if (lastUserMessage) {
-      const relevantChunks = await searchRelevantChunks(lastUserMessage);
-      if (relevantChunks.length > 0) {
-        conversationContext = updateConversationContext(conversationContext, relevantChunks);
-      }
+    if (lastUserMessage.role === 'user') {
+      const relevantChunks = await searchRelevantChunks(lastUserMessage.content)
+      conversationContext = updateConversationContext(conversationContext, relevantChunks)
     }
 
     // 기본 시스템 프롬프트 구성
@@ -638,43 +672,53 @@ export async function POST(request: Request) {
     systemPrompt = integrateContextToPrompt(systemPrompt, conversationContext);
 
     // OpenAI API 호출
-    const response = await openai.chat.completions.create({
+    const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
         { role: 'system', content: systemPrompt },
         ...messages
       ],
       temperature: 0.7,
-      max_tokens: 1000
-    });
+      max_tokens: 1000,
+      stream: true // 스트리밍 활성화
+    })
 
-    // 채팅 내역 저장
-    await supabase.from('chat_history').insert({
-      role: 'user',
-      content: lastUserMessage,
-      owner_id: ownerId,
-      pdf_context: conversationContext.recentPdfChunks.length > 0 ? {
-        file_name: conversationContext.fileName,
-        chunks: conversationContext.recentPdfChunks
-      } : null
-    });
+    // 스트리밍 응답 생성
+    const stream = new ReadableStream({
+      async start(controller) {
+        const encoder = new TextEncoder()
+        
+        try {
+          for await (const chunk of completion) {
+            const content = chunk.choices[0]?.delta?.content || ''
+            if (content) {
+              controller.enqueue(encoder.encode(content))
+            }
+          }
+          controller.close()
+        } catch (error) {
+          console.error('[Chat API] Streaming error:', error)
+          controller.error(error)
+        }
+      }
+    })
 
-    return new Response(
-      JSON.stringify({ 
-        response: response.choices[0].message.content,
-        pdfContext: conversationContext.recentPdfChunks.length > 0 ? {
-          fileName: conversationContext.fileName,
-          pages: conversationContext.recentPdfChunks.map(chunk => chunk.pageNumber)
-        } : null
-      }),
-      { headers: { 'Content-Type': 'application/json' } }
-    );
+    // 스트리밍 응답 반환
+    return new Response(stream, {
+      headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
+        'Transfer-Encoding': 'chunked'
+      }
+    })
 
   } catch (error) {
-    console.error('Error in chat route:', error);
+    console.error('[Chat API] Error:', error)
     return new Response(
-      JSON.stringify({ error: 'An error occurred during processing' }), 
+      JSON.stringify({ 
+        error: '서버 오류가 발생했습니다.',
+        details: error instanceof Error ? error.message : String(error)
+      }), 
       { status: 500 }
-    );
+    )
   }
 }

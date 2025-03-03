@@ -33,6 +33,7 @@ export default function ChatPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [pdfContent, setPdfContent] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isThinking, setIsThinking] = useState(false);
 
   // localStorage에서 메시지 불러오기
   useEffect(() => {
@@ -83,13 +84,13 @@ export default function ChatPage() {
       id: crypto.randomUUID()
     }
     
-    // 빈 어시스턴트 메시지 추가 (로딩 표시용)
     const assistantMessage: Message = {
       role: 'assistant',
-      content: '',
+      content: '···',
       id: crypto.randomUUID()
     }
     
+    setIsThinking(true);
     setMessages(prev => [...prev, userMessage, assistantMessage])
 
     try {
@@ -100,34 +101,64 @@ export default function ChatPage() {
         },
         body: JSON.stringify({ 
           messages: [...messages, userMessage],
-          pdfContent: pdfContent
+          pdfContent
         })
       });
 
       if (!response.ok) {
+        if (response.status === 504) {
+          throw new Error('요청 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.');
+        }
         throw new Error(translate('apiError', language));
       }
 
-      const data = await response.json();
-      
-      if (data.error) {
-        throw new Error(data.error);
+      // 스트리밍 응답 처리
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let fullContent = '';
+
+      if (!reader) {
+        throw new Error('응답을 읽을 수 없습니다.');
       }
 
-      // 로딩 메시지를 실제 응답으로 업데이트
-      setMessages(prev => prev.map(msg => 
-        msg.id === assistantMessage.id 
-          ? { ...msg, content: data.response }
-          : msg
-      ));
+      try {
+        // 응답이 오기 전까지 로딩 애니메이션 유지 (최소 1초)
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        // 전체 응답 수집
+        while (true) {
+          const { done, value } = await reader.read();
+          
+          if (done) {
+            break;
+          }
+
+          // 새로운 청크를 디코딩하고 누적
+          const chunk = decoder.decode(value, { stream: true });
+          fullContent += chunk;
+        }
+
+        setIsThinking(false);
+
+        // 전체 응답을 한 번에 표시
+        setMessages(prev => prev.map(msg =>
+          msg.id === assistantMessage.id
+            ? { ...msg, content: fullContent }
+            : msg
+        ));
+
+      } finally {
+        reader.releaseLock();
+      }
+
     } catch (error) {
+      setIsThinking(false);
       console.error('Error:', error);
-      // 에러 발생 시 로딩 메시지를 에러 메시지로 업데이트
       setMessages(prev => prev.map(msg => 
         msg.id === assistantMessage.id 
           ? { 
               ...msg, 
-              content: translate('apiError', language)
+              content: error instanceof Error ? error.message : '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.'
             }
           : msg
       ));
@@ -228,6 +259,32 @@ export default function ChatPage() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 flex flex-col">
+      <style jsx global>{`
+        @keyframes blink {
+          0% { opacity: 0.3; }
+          50% { opacity: 1; }
+          100% { opacity: 0.3; }
+        }
+
+        .thinking-dots {
+          display: inline-block;
+        }
+
+        .thinking-dots span {
+          animation: blink 1s infinite;
+          margin-left: 1px;
+          margin-right: 1px;
+        }
+
+        .thinking-dots span:nth-child(2) {
+          animation-delay: 0.2s;
+        }
+
+        .thinking-dots span:nth-child(3) {
+          animation-delay: 0.4s;
+        }
+      `}</style>
+
       <div className="fixed top-0 left-0 right-0 z-50 border-b border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
         <Navigation language={language} />
       </div>
@@ -300,9 +357,14 @@ export default function ChatPage() {
             {messages.map((message, index) => (
               <ChatMessage 
                 key={getMessageKey(message, index)} 
-                message={message} 
+                message={
+                  message.role === 'assistant' && message.content === '···' && isThinking
+                    ? { ...message, content: '···' }
+                    : message
+                }
                 isDarkMode={isDarkMode}
                 onSendMessage={handleSendMessage}
+                isThinking={isThinking && message.content === '···'}
               />
             ))}
             <div ref={messagesEndRef} />
