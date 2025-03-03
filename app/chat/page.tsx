@@ -127,10 +127,7 @@ export default function ChatPage() {
         msg.id === assistantMessage.id 
           ? { 
               ...msg, 
-              content: translate(
-                error instanceof Error ? error.message : 'chatError',
-                language
-              )
+              content: translate('apiError', language)
             }
           : msg
       ));
