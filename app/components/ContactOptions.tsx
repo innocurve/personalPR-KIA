@@ -33,7 +33,7 @@ const ContactOptions: React.FC<ContactOptionsProps> = ({ language }) => {
       window.location.href = 'tel:+8210-1234-5678'
     } else if (key === 'innocard') {
       if (window.Telegram?.WebApp) {
-        window.Telegram.WebApp.openLink('https://www.kia.com/kr/vehicles/catalog-price')
+        window.Telegram.WebApp.openLink('https://m.kia.com/kr/vehicles/catalog-price')
       } else {
         window.open('https://www.kia.com/kr/vehicles/catalog-price', '_blank', 'noopener,noreferrer')
       }
