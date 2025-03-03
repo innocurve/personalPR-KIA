@@ -423,20 +423,42 @@ export async function POST(request: Request) {
       if (requestedModels.length > 0) {
         let finalResponse = "";
         for (const model of requestedModels) {
-          const { data: modelPriceData, error: priceError } = await supabase
+          // 대소문자 구분 없이 검색하도록 수정
+          let { data: modelPriceData, error: priceError } = await supabase
             .from('kia_vehicle_info')
-            .select('content')
+            .select('content, model')
+            .ilike('model', model)  // 대소문자 구분 없이 검색
             .eq('type', 'price')
-            .eq('model', model)
-            .single();
+            .maybeSingle();  // single() 대신 maybeSingle() 사용
 
-          if (priceError || !modelPriceData) {
+          if (priceError) {
+            console.error(`Error fetching price for ${model}:`, priceError);
             finalResponse += `${model.toUpperCase()} 가격 정보를 조회할 수 없습니다.\n\n`;
             continue;
           }
 
+          if (!modelPriceData) {
+            // 다른 형태의 모델명으로 한 번 더 시도
+            const alternativeModel = model.toLowerCase() === 'morning' ? '모닝' : 
+                                   model.toLowerCase() === '모닝' ? 'morning' : model;
+            
+            const { data: altModelData, error: altError } = await supabase
+              .from('kia_vehicle_info')
+              .select('content, model')
+              .ilike('model', alternativeModel)
+              .eq('type', 'price')
+              .maybeSingle();
+
+            if (altError || !altModelData) {
+              finalResponse += `${model.toUpperCase()} 가격 정보를 조회할 수 없습니다.\n\n`;
+              continue;
+            }
+
+            modelPriceData = altModelData;
+          }
+
           const pricingJSON = modelPriceData.content;
-          let priceResponse = `${model.toUpperCase()} 가격 정보:\n\n`;
+          let priceResponse = `${modelPriceData.model.toUpperCase()} 가격 정보:\n\n`;
           for (const engine in pricingJSON) {
             priceResponse += `[${engine.replace(/_/g, ' ')}]\n`;
             const trims = pricingJSON[engine];
