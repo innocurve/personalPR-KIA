@@ -371,16 +371,16 @@ export const translations: TranslationDictionary = {
     zh: '你好！\n我是为 InnoCard 模板特别制作的 Ino。\n\n今天很高兴能向大家问好。\n这段视频是我们的问候视频示例，\n展示 InnoCard 模板如何优雅地传达您的信息。\n\n希望您能与我们一起开启新的体验。\n谢谢！'
   },
   affiliations_1: {
+    ko: '기아',
+    en: 'KIA',
+    ja: 'キア',
+    zh: '起亚'
+  },
+  affiliations_2: {
     ko: '이노커브',
     en: 'InnoCurve',
     ja: 'イノカーブ',
     zh: 'InnoCurve'
-  },
-  affiliations_2: {
-    ko: '추가 소속 기관',
-    en: 'Additional Affiliation',
-    ja: '追加所属',
-    zh: '附加隶属'
   },
   linkCopied: {
     ko: '링크가 복사되었습니다',

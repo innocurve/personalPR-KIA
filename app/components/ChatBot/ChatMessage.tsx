@@ -730,10 +730,10 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isDarkMode, onSendMe
          displayContent === message.content && (
           <div className="flex flex-wrap gap-2">
             {[
-              { label: 'K5 가격표', query: 'K5의 가격이 얼마인가요?' },
-              { label: 'K8 가격표', query: 'K8의 가격이 얼마인가요?' },
-              { label: 'K9 가격표', query: 'K9의 가격이 얼마인가요?' },
-              { label: '스포티지 가격표', query: '스포티지의 가격이 얼마인가요?' }
+              { label: 'K5 가격표', query: 'K5의 가격은 얼마인가요?' },
+              { label: 'K8 가격표', query: 'K8의 가격은 얼마인가요?' },
+              { label: 'K9 가격표', query: 'K9의 가격은 얼마인가요?' },
+              { label: '스포티지 가격표', query: '스포티지의 가격은 얼마인가요?' }
             ].map((item, index) => (
               <button
                 key={index}

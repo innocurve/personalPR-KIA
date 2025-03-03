@@ -82,8 +82,8 @@ const modelNameMapping: { [key: string]: string[] } = {
   'k9': ['케이9', 'k9'],
   'carnival': ['카니발', 'carnival'],
   'carnival-hi-limousine': ['카니발 하이브리드', 'carnival-hi-limousine'],
-  'sportage': ['스포티지', 'sportage'],
-  'sorento': ['쏘렌토', 'sorento'],
+  'sportage': ['스포티지', 'sportage', 'Sportage', 'SPORTAGE'],
+  'sorento': ['쏘렌토', 'sorento', 'Sorento', 'SORENTO'],
   'mohave': ['모하비', 'mohave'],
   'niro': ['니로', 'niro'],
   'ev6': ['이브이6', 'ev6'],
@@ -93,6 +93,21 @@ const modelNameMapping: { [key: string]: string[] } = {
   'seltos': ['셀토스', 'seltos'],
   'tasman': ['티스만', 'tasman']
 };
+
+function extractRequestedModels(message: string): string[] {
+  const lowerMessage = message.toLowerCase();
+  const requestedModels: string[] = [];
+  for (const canonical in modelNameMapping) {
+    for (const keyword of modelNameMapping[canonical]) {
+      if (lowerMessage.includes(keyword.toLowerCase())) {
+        requestedModels.push(canonical);
+        break; // 같은 모델에 대해 여러 키워드가 중복으로 걸리지 않도록
+      }
+    }
+  }
+  return requestedModels;
+}
+
 
 // 키워드 기반 PDF 청크 검색 함수
 async function searchRelevantChunks(question: string, fileName?: string): Promise<PdfContext[]> {
@@ -239,10 +254,10 @@ async function searchRelevantChunks(question: string, fileName?: string): Promis
       };
     });
 
-    // 상위 5개 청크 반환 (가격 정보 검색 시 더 많은 컨텍스트 제공)
+    // 상위 청크 반환 (가격 정보 검색 시 제한 없음)
     return scoredChunks
       .sort((a, b) => b.score - a.score)
-      .slice(0, isPriceQuery ? 5 : 3)
+      .slice(0, isPriceQuery ? undefined : 3)
       .map(({ fileName, content, pageNumber }) => ({
         fileName,
         content,
@@ -401,13 +416,63 @@ export async function POST(request: Request) {
   const ownerId = process.env.NEXT_PUBLIC_OWNER_ID;
 
   try {
-    // 대화 컨텍스트 초기화
+    // ----- 동적 차량 모델 추출 및 가격 정보 조회 시작 -----
+    if (lastUserMessage.toLowerCase().includes("가격")) {
+      // 모델명 추출: modelNameMapping을 이용
+      const requestedModels = extractRequestedModels(lastUserMessage);
+      if (requestedModels.length > 0) {
+        let finalResponse = "";
+        for (const model of requestedModels) {
+          const { data: modelPriceData, error: priceError } = await supabase
+            .from('kia_vehicle_info')
+            .select('content')
+            .eq('type', 'price')
+            .eq('model', model)
+            .single();
+
+          if (priceError || !modelPriceData) {
+            finalResponse += `${model.toUpperCase()} 가격 정보를 조회할 수 없습니다.\n\n`;
+            continue;
+          }
+
+          const pricingJSON = modelPriceData.content;
+          let priceResponse = `${model.toUpperCase()} 가격 정보:\n\n`;
+          for (const engine in pricingJSON) {
+            priceResponse += `[${engine.replace(/_/g, ' ')}]\n`;
+            const trims = pricingJSON[engine];
+            for (const trim in trims) {
+              const details = trims[trim];
+              let detailStrings: string[] = [];
+              for (const key in details) {
+                const displayKey = key.replace(/_/g, ' ');
+                const value = details[key];
+                detailStrings.push(
+                  typeof value === 'number'
+                    ? `${displayKey}: ${value}만원`
+                    : `${displayKey}: ${value}`
+                );
+              }
+              priceResponse += `- ${trim}: ${detailStrings.join(', ')}\n`;
+            }
+            priceResponse += "\n";
+          }
+          finalResponse += priceResponse;
+        }
+        finalResponse += `\n추가로 궁금하신 사항이 있으시면 언제든지 말씀해 주세요!`;
+        return new Response(
+          JSON.stringify({ response: finalResponse }),
+          { headers: { 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+    // ----- 동적 차량 모델 추출 및 가격 정보 조회 끝 -----
+
+    // 기존 PDF 관련 대화 컨텍스트 초기화 및 청크 검색 (가격 문의가 아닐 경우 실행)
     let conversationContext: ConversationContext = {
       pdfContent: pdfContent,
       recentPdfChunks: []
     };
 
-    // PDF 관련 청크 검색
     if (lastUserMessage) {
       const relevantChunks = await searchRelevantChunks(lastUserMessage);
       if (relevantChunks.length > 0) {
@@ -415,7 +480,6 @@ export async function POST(request: Request) {
       }
     }
 
-    // 기본 시스템 프롬프트 구성
     let systemPrompt = `당신은 정이노의 AI 클론입니다. 아래 정보를 바탕으로 1인칭으로 자연스럽게 대화하세요.
     현재 시각은 ${new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })} 입니다.
   
@@ -459,11 +523,10 @@ export async function POST(request: Request) {
 1. 기본 가격 안내:
    - PDF 문서에서 찾은 가격 정보를 우선적으로 제공
    - PDF에서 찾은 모든 트림의 가격 정보를 빠짐없이 안내
-   - PDF에서 정보를 찾지 못한 경우에만 아래의 기본 가격 정보를 사용
+   - PDF에서 정보를 찾지 못한 경우에만 기본 가격 정보를 사용
    - 가격은 숫자와 '만원' 단위로 표시 (예: "2,775만원")
    - 트림별 가격은 항상 트림명과 함께 제시
    - 가격 정보 앞에는 항상 '**' 강조 표시를 사용
-
 
 답변 스타일:
 1. PDF 내용 관련 질문:
@@ -481,10 +544,8 @@ export async function POST(request: Request) {
 - 페이지 번호나 문서 출처를 언급하지 않음
 `;
 
-    // PDF 컨텍스트가 있는 경우 시스템 프롬프트에 통합
     systemPrompt = integrateContextToPrompt(systemPrompt, conversationContext);
 
-    // OpenAI API 호출
     const response = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
@@ -492,10 +553,9 @@ export async function POST(request: Request) {
         ...messages
       ],
       temperature: 0.7,
-      max_tokens: 1000
+      max_tokens: 4000
     });
 
-    // 채팅 내역 저장
     await supabase.from('chat_history').insert({
       role: 'user',
       content: lastUserMessage,
