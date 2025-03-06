@@ -327,18 +327,22 @@ const ChatInput: React.FC<ChatInputProps> = ({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex items-center gap-2">
-      <div className="flex-1 relative">
+    <form onSubmit={handleSubmit} className="relative w-full">
+      <div
+        className={`flex items-center rounded-lg border p-1.5 ${
+          isDarkMode
+            ? 'bg-gray-800 border-gray-700 text-white'
+            : 'bg-white border-gray-300 text-gray-900'
+        }`}
+      >
         <input
           type="text"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           placeholder={getPlaceholder()}
-          className={`w-full p-3 rounded-lg border ${
-            isDarkMode
-              ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400'
-              : 'bg-white border-gray-200 text-gray-900 placeholder-gray-500'
-          } focus:outline-none focus:ring-2 focus:ring-[#EA0029] focus:border-transparent`}
+          className={`flex-grow px-2 py-1.5 outline-none bg-transparent min-w-0 ${
+            isDarkMode ? 'text-white placeholder-gray-400' : 'text-gray-900 placeholder-gray-500'
+          }`}
           disabled={isProcessing || isLocalProcessing}
         />
         {(isProcessing || isLocalProcessing) && (
@@ -346,20 +350,20 @@ const ChatInput: React.FC<ChatInputProps> = ({
             <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
           </div>
         )}
+        <div className="flex items-center gap-1.5 flex-shrink-0">
+          <button
+            type="submit"
+            disabled={!message.trim() || isProcessing || isLocalProcessing}
+            className={`p-1.5 rounded-full transition-all duration-300 ${
+              message.trim() && !isProcessing && !isLocalProcessing
+                ? 'bg-[#EA0029] text-white hover:bg-[#C8001E] hover:scale-110'
+                : 'bg-gray-200 dark:bg-gray-700 text-gray-400'
+            }`}
+          >
+            <Send className="w-4 h-4" />
+          </button>
+        </div>
       </div>
-      <button
-        type="submit"
-        disabled={!message.trim() || isProcessing || isLocalProcessing}
-        className={`p-3 rounded-lg ${
-          message.trim() && !isProcessing && !isLocalProcessing
-            ? 'bg-[#EA0029] text-white hover:bg-[#C8001E]'
-            : isDarkMode
-            ? 'bg-gray-800 text-gray-400'
-            : 'bg-gray-100 text-gray-400'
-        } transition-colors duration-75 disabled:cursor-not-allowed`}
-      >
-        <Send className="w-5 h-5" />
-      </button>
     </form>
   )
 }
