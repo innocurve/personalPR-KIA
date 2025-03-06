@@ -108,6 +108,7 @@ export default function GreetingVideo() {
                         src={videoSources[language] || videoSources['en']}
                         className="w-full h-full object-cover cursor-pointer"
                         playsInline
+                        poster="/greetingvideo/thumbnail.png"
                         onClick={togglePlay}
                       >
                         Your browser does not support the video tag.
